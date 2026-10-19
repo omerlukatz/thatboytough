@@ -1,0 +1,629 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Games Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap">
+<style>
+/* Layout: pixel arcade in the spirit of Eraly. Deep indigo night with a pixel starfield,
+   a console panel with amber title, then cartridge shelves with flat, hard-edged colors.
+   Single dark look by choice. */
+:root {
+  --bg: #0e0b22;
+  --panel: #181437;
+  --panel-edge: #34306a;
+  --ink: #e6e3fa;
+  --muted: #8e89bd;
+  --amber: #ffb83d;
+  --amber-deep: #b9741a;
+  --amber-ink: #2a1700;
+  --shell: #221d4a;
+  --shell-edge: #3e3980;
+  --shadow: #06041a;
+  --ledge: #2a2560;
+  --ledge-hi: #4a4496;
+  --led-off: #2e2a5c;
+  --done: #62e08a;
+  --lab-ink: #120d2b;
+  --pink: #e8607f;
+  --splash-bg: #05040f;
+  --font-pixel: "Press Start 2P", "Courier New", ui-monospace, monospace;
+  --font-body: "Pixelify Sans", ui-monospace, "Courier New", monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+  padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#stars {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.wrap { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; }
+
+/* console panel */
+.console {
+  background: var(--panel);
+  border: 2px solid var(--panel-edge);
+  box-shadow: 0 6px 0 var(--shadow);
+  padding: 20px 18px 18px;
+  display: grid;
+  gap: 16px;
+  margin-bottom: 44px;
+}
+.console-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
+.date {
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  margin: 8px 0 0;
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: clamp(1rem, 5.4vw, 2.6rem);
+  line-height: 1.2;
+  color: var(--amber);
+  text-shadow: 4px 4px 0 var(--amber-deep);
+}
+.tally { text-align: right; }
+.tally .big { font-family: var(--font-pixel); font-size: clamp(1.2rem, 5vw, 1.8rem); line-height: 1.2; color: var(--amber); font-variant-numeric: tabular-nums; }
+.tally .big small { font-size: 0.6em; color: var(--muted); }
+.tally .sub { margin-top: 6px; font-size: 14px; letter-spacing: 0.1em; color: var(--muted); }
+.tally .sub.all { color: var(--done); }
+.leds { display: flex; flex-wrap: wrap; gap: 4px; }
+.leds i {
+  width: 14px; height: 14px;
+  background: var(--led-off);
+}
+.leds i.on { background: var(--amber); box-shadow: inset 0 -3px 0 var(--amber-deep); }
+
+/* shelves */
+section { margin-bottom: 48px; }
+.shelf-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 14px; margin-bottom: 18px;
+  background: repeating-linear-gradient(90deg, var(--panel-edge) 0 8px, transparent 8px 12px) bottom / 100% 4px no-repeat;
+}
+h2 {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: clamp(0.78rem, 3.4vw, 1rem);
+  line-height: 1.4;
+  color: var(--amber);
+}
+h2::before { content: ""; flex: none; width: 10px; height: 10px; background: var(--amber); }
+.sec-count {
+  padding: 4px 8px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--lab-ink);
+  background: var(--chip, var(--amber));
+  font-variant-numeric: tabular-nums;
+}
+
+.grid {
+  display: grid;
+  gap: 18px 14px;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+}
+.slot { position: relative; padding-bottom: 14px; min-width: 0; }
+.slot::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: -7px; right: -7px; bottom: 0; height: 14px;
+  background: linear-gradient(var(--ledge-hi) 0 4px, var(--ledge) 4px);
+  box-shadow: 0 4px 0 var(--shadow);
+}
+
+/* cartridge */
+.cart {
+  position: relative;
+  z-index: 1;
+  background: var(--shell);
+  border: 2px solid var(--shell-edge);
+}
+.face {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 8px;
+  padding: 0 8px 8px;
+  color: var(--ink);
+  text-decoration: none;
+  min-height: 176px;
+}
+.grip {
+  height: 16px;
+  margin: 0 -8px;
+  background: repeating-linear-gradient(90deg, var(--shell-edge) 0 4px, transparent 4px 8px);
+}
+.label {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 14px 8px;
+  background: hsl(var(--h) 85% 62%);
+  box-shadow:
+    inset 0 4px 0 hsl(var(--h) 90% 78%),
+    inset 0 -4px 0 hsl(var(--h) 70% 44%);
+  color: var(--lab-ink);
+}
+.emoji { width: 48px; height: 48px; image-rendering: pixelated; }
+.emo { display: grid; place-items: center; }
+.emoji-t { font-size: 38px; line-height: 48px; }
+.name {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 1.6;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.face:hover .label { filter: brightness(1.1); }
+
+/* press: the cartridge is pushed down into the shelf slot behind the ledge, in pixel steps */
+.cart.insert { animation: insert 0.5s steps(3, end); }
+.cart.insert .label { animation: dent 0.5s steps(3, end); }
+@keyframes insert {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(12px); }
+  65% { transform: translateY(12px); }
+  100% { transform: translateY(0); }
+}
+@keyframes dent {
+  0%, 100% { box-shadow: inset 0 4px 0 hsl(var(--h) 90% 78%), inset 0 -4px 0 hsl(var(--h) 70% 44%); }
+  30%, 65% { box-shadow: inset 0 4px 0 hsl(var(--h) 70% 44%), inset 0 -4px 0 hsl(var(--h) 90% 78%); }
+}
+
+/* opened marker: appears after the game link is clicked */
+.check {
+  position: absolute;
+  z-index: 2;
+  top: 3px; right: 6px;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  background: var(--done);
+  color: var(--lab-ink);
+  border: 2px solid var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+}
+.check svg { width: 14px; height: 14px; }
+.cart.done .check { opacity: 1; }
+.tag {
+  position: absolute;
+  top: 4px; right: 8px;
+  font: 400 8px var(--font-pixel);
+  color: var(--muted);
+}
+
+a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+@media (max-width: 380px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 10px; }
+  .name { font-size: 9px; }
+}
+
+/* boot-up splash */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 26px;
+  background: var(--splash-bg);
+  font-family: var(--font-pixel);
+  cursor: default;
+  padding-block: max(24px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  transition: opacity 0.3s;
+}
+.splash.out { opacity: 0; }
+.splash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 4px);
+  pointer-events: none;
+}
+.boot {
+  width: min(100%, 420px);
+  min-height: 8em;
+  white-space: pre-wrap;
+  font-size: 9px;
+  line-height: 2;
+  color: var(--muted);
+}
+.s-title {
+  font-size: clamp(1.5rem, 6.6vw, 3.2rem);
+  line-height: 1.5;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--amber);
+  text-shadow: 4px 4px 0 var(--amber-deep);
+}
+.s-title .ch { opacity: 0; }
+.s-title .ch.on { opacity: 1; }
+.s-bar { display: flex; gap: 4px; width: min(100%, 420px); }
+.s-bar i { flex: 1; height: 16px; background: var(--led-off); }
+.s-bar i.on { background: hsl(var(--h) 85% 62%); }
+.s-sprite {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  animation: bob 0.8s steps(2) infinite;
+}
+.s-sprite .b { fill: var(--shell-edge); }
+.s-sprite .l { fill: var(--amber); }
+.s-sprite .h { fill: var(--ink); }
+.s-sprite .p { fill: var(--muted); }
+@keyframes bob { 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<div class="splash" id="splash">
+  <svg class="s-sprite" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+    <rect class="b" x="2" y="2" width="12" height="13"/>
+    <rect class="b" x="3" y="1" width="1" height="1"/>
+    <rect class="b" x="5" y="1" width="1" height="1"/>
+    <rect class="b" x="7" y="1" width="1" height="1"/>
+    <rect class="b" x="9" y="1" width="1" height="1"/>
+    <rect class="b" x="11" y="1" width="1" height="1"/>
+    <rect class="l" x="4" y="5" width="8" height="6"/>
+    <rect class="h" x="5" y="6" width="3" height="1"/>
+    <rect class="p" x="4" y="15" width="8" height="1"/>
+  </svg>
+  <div class="boot" id="splash-boot" aria-hidden="true"></div>
+  <div class="s-title" id="splash-title" aria-hidden="true"></div>
+  <div class="s-bar" id="splash-bar" aria-hidden="true"></div>
+</div>
+
+<div class="wrap">
+  <div class="console">
+    <div class="console-top">
+      <div>
+        <div class="date" id="date"></div>
+        <h1>THAT BOY TOUGH</h1>
+      </div>
+      <div class="tally">
+        <div class="big"><span id="done-n">0</span><small> / <span id="total-n">0</span></small></div>
+        <div class="sub" id="status"></div>
+      </div>
+    </div>
+    <div class="leds" id="leds" aria-hidden="true"></div>
+  </div>
+  <main id="groups"></main>
+</div>
+
+<script>
+// Edit this list to add, remove or reorder games. isDaily:false means the game is never marked as opened.
+var GROUPS = [
+  { name: "Geography & World", games: [
+    { id: "maptap", name: "Map tap", url: "https://maptap.gg", emoji: "📍", isDaily: true },
+    { id: "worldle", name: "Worldle", url: "https://worldle.teuteuf.fr", emoji: "🌍", isDaily: true },
+    { id: "statle", name: "Statle", url: "https://statele.teuteuf.fr", emoji: "📊", isDaily: true },
+    { id: "headcount", name: "Head count", url: "https://flightq.app/headcount", emoji: "👥", isDaily: true },
+    { id: "geogrid", name: "Geogrid", url: "https://www.geogridgame.com", emoji: "🔲", isDaily: true },
+    { id: "flaggle", name: "Flaggle", url: "https://www.flagle.io", emoji: "🚩", isDaily: true },
+    { id: "globle", name: "Globle", url: "https://globle-game.com/game", emoji: "🌐", isDaily: true },
+    { id: "ethnoguesser", name: "Ethnoguesser", url: "https://hbd.gg/play/", emoji: "🧭", isDaily: true },
+    { id: "timeguesser", name: "Timeguesser", url: "https://timeguessr.com", emoji: "⏳", isDaily: true }
+  ]},
+  { name: "Challenges & Trivia", games: [
+    { id: "krillion", name: "Krillion", url: "https://krillion.io", emoji: "🦐", isDaily: true },
+    { id: "noillirk", name: "Noillirk", url: "https://noillirk.com", emoji: "🔤", isDaily: true },
+    { id: "dailysortie", name: "Daily Sortie", url: "https://dailysortie.com", emoji: "✈️", isDaily: true },
+    { id: "costcotle", name: "Costcotle", url: "https://costcodle.com", emoji: "🛒", isDaily: true },
+    { id: "magnitudle", name: "Size it up Magnitude", url: "https://magnitudle.com/size-it-up", emoji: "📏", isDaily: true },
+    { id: "poeltl", name: "Poeltl", url: "https://poeltl.nbpa.com/landing-page", emoji: "🏀", isDaily: true },
+    { id: "lessgames", name: "Less games", url: "https://lessgames.com", emoji: "🎲", isDaily: false },
+    { id: "elementle", name: "Elementle", url: "https://elementlegame.com", emoji: "⚗️", isDaily: true },
+    { id: "riddlerr", name: "Riddler", url: "https://riddlerr.com", emoji: "🧩", isDaily: true },
+    { id: "marveldle", name: "Marveldle", url: "https://marveldle.com/menu", emoji: "🦸", isDaily: true },
+    { id: "tradle", name: "Tradle", url: "https://tradle.net", emoji: "🚢", isDaily: true },
+    { id: "cutle", name: "Cutle", url: "https://cutle.org", emoji: "✂️", isDaily: true },
+    { id: "eraly", name: "Eraly", url: "https://eraly.io", emoji: "🕰️", isDaily: true }
+  ]}
+];
+
+var HUES = [14, 42, 152, 198, 268, 330, 92, 182, 352, 58, 222, 120];
+var CHIPS = ["#f3d98a", "#7fe0d6", "#9be37a", "#f08a3c", "#e8607f"];
+var KEY = "games-hub-daily-v1";
+var CHECK_SVG = '<svg viewBox="0 0 8 8" shape-rendering="crispEdges" fill="currentColor"><rect x="1" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/></svg>';
+
+function todayKey() {
+  var d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var s = JSON.parse(raw);
+      if (s && s.date === todayKey() && s.done) return s;
+    }
+  } catch (e) {}
+  return { date: todayKey(), done: {} };
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+var state = load();
+var allGames = [];
+GROUPS.forEach(function (g) { g.games.forEach(function (x) { allGames.push(x); }); });
+var dailyGames = allGames.filter(function (x) { return x.isDaily; });
+
+function host(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return url; }
+}
+
+/* draw an emoji on a tiny canvas and harden its edges so it scales up as pixel art */
+function pixelEmoji(ch) {
+  var c = document.createElement("canvas");
+  c.width = 20; c.height = 20;
+  c.className = "emoji";
+  c.setAttribute("aria-hidden", "true");
+  try {
+    var x = c.getContext("2d", { willReadFrequently: true });
+    x.font = "16px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+    x.textAlign = "center";
+    x.textBaseline = "middle";
+    x.fillText(ch, 10, 11);
+    var d = x.getImageData(0, 0, 20, 20), p = d.data, any = false;
+    for (var i = 3; i < p.length; i += 4) {
+      if (p[i] > 110) { p[i] = 255; any = true; } else { p[i] = 0; }
+    }
+    if (!any) throw new Error("blank");
+    x.putImageData(d, 0, 0);
+    return c;
+  } catch (e) {
+    var s = document.createElement("span");
+    s.className = "emoji-t";
+    s.setAttribute("aria-hidden", "true");
+    s.textContent = ch;
+    return s;
+  }
+}
+
+function pressFx(cart) {
+  if (cart.classList.contains("insert")) return;
+  cart.classList.add("insert");
+  setTimeout(function () { cart.classList.remove("insert"); }, 520);
+}
+
+function build() {
+  var root = document.getElementById("groups");
+  root.innerHTML = "";
+  var idx = 0;
+  GROUPS.forEach(function (g, gi) {
+    var sec = document.createElement("section");
+    var head = document.createElement("div");
+    head.className = "shelf-head";
+    head.innerHTML = '<h2></h2><span class="sec-count"></span>';
+    head.querySelector("h2").textContent = g.name;
+    var sc = head.querySelector(".sec-count");
+    sc.dataset.group = g.name;
+    sc.style.setProperty("--chip", CHIPS[gi % CHIPS.length]);
+    sec.appendChild(head);
+
+    var grid = document.createElement("div");
+    grid.className = "grid";
+    g.games.forEach(function (game) {
+      var slot = document.createElement("div");
+      slot.className = "slot";
+      var cart = document.createElement("div");
+      cart.className = "cart";
+      cart.dataset.id = game.id;
+      cart.style.setProperty("--h", HUES[idx % HUES.length]);
+      idx++;
+
+      var a = document.createElement("a");
+      a.className = "face";
+      a.href = game.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.innerHTML = '<span class="grip"></span><span class="label"><span class="emo"></span><span class="name"></span></span>';
+      a.querySelector(".emo").appendChild(pixelEmoji(game.emoji));
+      a.querySelector(".name").textContent = game.name;
+      cart.appendChild(a);
+      a.addEventListener("pointerdown", function () { pressFx(cart); });
+      a.addEventListener("click", function () { pressFx(cart); });
+
+      if (game.isDaily) {
+        var c = document.createElement("span");
+        c.className = "check";
+        c.setAttribute("aria-hidden", "true");
+        c.innerHTML = CHECK_SVG;
+        cart.appendChild(c);
+        var mark = function () { markOpened(game.id); };
+        a.addEventListener("click", mark);
+        a.addEventListener("auxclick", mark);
+      } else {
+        var t = document.createElement("span");
+        t.className = "tag";
+        t.textContent = "ANY TIME";
+        cart.appendChild(t);
+      }
+      slot.appendChild(cart);
+      grid.appendChild(slot);
+    });
+    sec.appendChild(grid);
+    root.appendChild(sec);
+  });
+}
+
+function markOpened(id) {
+  rollover();
+  if (!state.done[id]) {
+    state.done[id] = true;
+    save();
+  }
+  paint();
+}
+function rollover() {
+  if (state.date !== todayKey()) {
+    state = { date: todayKey(), done: {} };
+    save();
+    paint();
+  }
+}
+
+function paint() {
+  var total = dailyGames.length;
+  var n = 0;
+  dailyGames.forEach(function (x) { if (state.done[x.id]) n++; });
+
+  document.getElementById("date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+  document.getElementById("done-n").textContent = n;
+  document.getElementById("total-n").textContent = total;
+
+  var status = document.getElementById("status");
+  var left = total - n;
+  status.className = "sub" + (left === 0 ? " all" : "");
+  status.textContent = left === 0 ? "ALL OPENED TODAY" : left + " LEFT TODAY";
+
+  var leds = document.getElementById("leds");
+  if (leds.children.length !== total) {
+    leds.innerHTML = "";
+    for (var i = 0; i < total; i++) leds.appendChild(document.createElement("i"));
+  }
+  for (var j = 0; j < leds.children.length; j++) leds.children[j].className = j < n ? "on" : "";
+
+  allGames.forEach(function (game) {
+    var cart = document.querySelector('.cart[data-id="' + game.id + '"]');
+    var isDone = game.isDaily && !!state.done[game.id];
+    cart.classList.toggle("done", isDone);
+    cart.querySelector(".face").setAttribute("aria-label", "Play " + game.name + (isDone ? " (opened today)" : ""));
+  });
+
+  document.querySelectorAll(".sec-count").forEach(function (el) {
+    var g = GROUPS.filter(function (x) { return x.name === el.dataset.group; })[0];
+    var daily = g.games.filter(function (x) { return x.isDaily; });
+    var d = daily.filter(function (x) { return state.done[x.id]; }).length;
+    el.textContent = d + "/" + daily.length + " opened";
+  });
+}
+
+document.addEventListener("visibilitychange", function () { if (!document.hidden) rollover(); });
+setInterval(rollover, 60000);
+
+/* pixel starfield, drawn at one third resolution so every star is a 3px square */
+function drawStars() {
+  var c = document.getElementById("stars");
+  var w = c.width = Math.ceil(window.innerWidth / 3);
+  var h = c.height = Math.ceil(window.innerHeight / 3);
+  var x = c.getContext("2d");
+  var seed = 7;
+  function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+  var count = Math.floor(w * h / 220);
+  for (var i = 0; i < count; i++) {
+    var r = rnd();
+    x.fillStyle = r > 0.92 ? "#ffb83d" : (r > 0.6 ? "#9d96e8" : "#4a4496");
+    x.fillRect(Math.floor(rnd() * w), Math.floor(rnd() * h), 1, 1);
+  }
+}
+var starTimer = null;
+window.addEventListener("resize", function () { clearTimeout(starTimer); starTimer = setTimeout(drawStars, 150); });
+
+/* boot-up splash: plays once per day for 4 seconds, no skip */
+var SPLASH_KEY = "games-hub-splash-v1";
+var SPLASH_TEXT = "THAT BOY TOUGH";
+var splash = document.getElementById("splash");
+var sTitle = document.getElementById("splash-title");
+var sBar = document.getElementById("splash-bar");
+var sBoot = document.getElementById("splash-boot");
+var splashDone = true, splashTimers = [];
+
+function later(fn, ms) { splashTimers.push(setTimeout(fn, ms)); }
+
+function endSplash() {
+  if (splashDone) return;
+  splashDone = true;
+  splashTimers.forEach(clearTimeout);
+  splashTimers = [];
+  splash.classList.add("out");
+  setTimeout(function () {
+    splash.hidden = true;
+    splash.classList.remove("out");
+    document.documentElement.style.overflow = "";
+  }, 320);
+  try { localStorage.setItem(SPLASH_KEY, todayKey()); } catch (e) {}
+}
+
+function playSplash() {
+  splashDone = false;
+  splash.classList.remove("out");
+  splash.hidden = false;
+  document.documentElement.style.overflow = "hidden";
+
+  sTitle.innerHTML = "";
+  for (var i = 0; i < SPLASH_TEXT.length; i++) {
+    var ch = SPLASH_TEXT.charAt(i);
+    if (ch === " ") { sTitle.appendChild(document.createTextNode(" ")); continue; }
+    var s = document.createElement("span");
+    s.className = "ch";
+    s.textContent = ch;
+    sTitle.appendChild(s);
+  }
+  sBar.innerHTML = "";
+  for (var k = 0; k < allGames.length; k++) {
+    var seg = document.createElement("i");
+    seg.style.setProperty("--h", HUES[k % HUES.length]);
+    sBar.appendChild(seg);
+  }
+  var chars = sTitle.querySelectorAll(".ch");
+  var segs = sBar.children;
+  sBoot.textContent = "> POWER ON_";
+
+  later(function () { sBoot.textContent = "> POWER ON\n> RAM CHECK... OK_"; }, 450);
+  later(function () { sBoot.textContent = "> POWER ON\n> RAM CHECK... OK\n> LOADING CARTRIDGES_"; }, 1100);
+  Array.prototype.forEach.call(chars, function (c, n) {
+    later(function () { c.classList.add("on"); }, 900 + n * 110);
+  });
+  Array.prototype.forEach.call(segs, function (sg, n) {
+    later(function () { sg.classList.add("on"); }, 1300 + n * 90);
+  });
+  later(function () {
+    sBoot.textContent = "> POWER ON\n> RAM CHECK... OK\n> LOADING CARTRIDGES\n> " + segs.length + " CARTRIDGES READY";
+  }, 3200);
+  later(endSplash, 3700);
+}
+
+drawStars();
+build();
+paint();
+
+(function () {
+  var seen = "";
+  try { seen = localStorage.getItem(SPLASH_KEY) || ""; } catch (e) {}
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (seen === todayKey() || reduce) { splash.hidden = true; } else { playSplash(); }
+})();
+</script>
+
+</body></html>
