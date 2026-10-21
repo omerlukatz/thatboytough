@@ -577,7 +577,9 @@ var GROUPS = [
     { id: "costcotle", name: "Costcotle", url: "https://costcodle.com", emoji: "🛒", isDaily: true, score: { type: "guesses", max: 6 } },
     { id: "magnitudle", name: "Size it up Magnitude", url: "https://magnitudle.com/size-it-up", emoji: "📏", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
     { id: "poeltl", name: "Poeltl", url: "https://poeltl.nbpa.com/landing-page", emoji: "🏀", isDaily: true, score: { type: "guesses", max: 8 } },
-    { id: "lessgames", name: "Less games", url: "https://lessgames.com", emoji: "🎲", isDaily: false },
+    { id: "clueless", name: "Clueless", url: "https://lessgames.com/clueless", emoji: "🔍", isDaily: true, score: { type: "guesses" } },
+    { id: "moreless", name: "More/less", url: "https://lessgames.com/moreless", emoji: "↕️", isDaily: true, score: { type: "points" } }, // ?
+    { id: "songless", name: "Songless", url: "https://lessgames.com/songless", emoji: "🎵", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
     { id: "elementle", name: "Elementle", url: "https://elementlegame.com", emoji: "⚗️", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
     { id: "riddlerr", name: "Riddler", url: "https://riddlerr.com", emoji: "🧩", isDaily: true, score: { type: "guesses" } }, // ?
     { id: "marveldle", name: "Marveldle", url: "https://marveldle.com/menu", emoji: "🦸", isDaily: true, score: { type: "guesses" } }, // ?
@@ -687,7 +689,7 @@ var demo = {
   data: null,
   load: function () {
     try { this.data = JSON.parse(localStorage.getItem(DEMO_KEY) || "null"); } catch (e) { this.data = null; }
-    if (!this.data) this.data = { user: null, scores: {}, friends: ["sam", "alex"], pending: ["jordan"] };
+    if (!this.data) this.data = { user: null, scores: {}, friends: ["sam", "alex"] };
   },
   persist: function () { try { localStorage.setItem(DEMO_KEY, JSON.stringify(this.data)); } catch (e) {} },
 
@@ -726,14 +728,7 @@ var demo = {
   friends: async function () {
     return this.data.friends.map(function (n) { return { id: n, username: n, pending: false }; });
   },
-  requests: async function () {
-    return this.data.pending.map(function (n) { return { id: n, username: n }; });
-  },
-  acceptRequest: async function (id) {
-    this.data.pending = this.data.pending.filter(function (n) { return n !== id; });
-    if (this.data.friends.indexOf(id) === -1) this.data.friends.push(id);
-    this.persist();
-  },
+  acceptRequests: async function () {},
   addFriend: async function (code) {
     code = code.trim().toUpperCase();
     if (this.data.user && code === this.data.user.code) return { error: "That's your own code." };
@@ -741,9 +736,8 @@ var demo = {
     if (!name) return { error: "No player has that code. Codes look like TBT-5A3C1E." };
     if (this.data.friends.indexOf(name) !== -1) return { error: name + " is already your friend." };
     this.data.friends.push(name);
-    this.data.pending = this.data.pending.filter(function (n) { return n !== name; });
     this.persist();
-    return { ok: "Added " + name + ". In the live version they'll need to accept first." };
+    return { ok: "You and @" + name + " are now friends." };
   },
   removeFriend: async function (id) {
     this.data.friends = this.data.friends.filter(function (n) { return n !== id; });
@@ -867,7 +861,8 @@ async function connectFirebase() {
       await F.deleteDoc(ref("users", uid(), "scores", day + "_" + gameId));
     },
 
-    // Your list holds everyone you've added; a friend is "pending" until they add you back.
+    // Adding a friend writes both lists at once. "pending" only shows up for a friendship
+    // that one side hasn't finished (older requests), and it fixes itself when they visit.
     friends: async function () {
       var me = uid(), list = [];
       var snap = await F.getDocs(col("users", me, "friends"));
@@ -879,21 +874,14 @@ async function connectFirebase() {
       lastFriends = list;
       return list;
     },
-    requests: async function () {
+    // Friend requests from before adding was instant: accept them automatically.
+    acceptRequests: async function () {
       var me = uid();
       var snap = await F.getDocs(F.query(col("requests"), F.where("to", "==", me)));
-      var mine = {};
-      lastFriends.forEach(function (f) { mine[f.id] = true; });
-      return snap.docs
-        .map(function (d) { return { id: d.data().from, username: d.data().fromName }; })
-        .filter(function (r) { return !mine[r.id]; });
-    },
-    acceptRequest: async function (fromUid) {
-      var me = uid();
-      var req = await F.getDoc(ref("requests", fromUid + "_" + me));
-      if (!req.exists()) return;
-      await F.setDoc(ref("users", me, "friends", fromUid), { username: req.data().fromName });
-      await ignore(F.deleteDoc(ref("requests", fromUid + "_" + me)));
+      await Promise.all(snap.docs.map(async function (d) {
+        await F.setDoc(ref("users", me, "friends", d.data().from), { username: d.data().fromName });
+        await ignore(F.deleteDoc(d.ref));
+      }));
     },
     addFriend: async function (code) {
       var me = uid();
@@ -904,14 +892,14 @@ async function connectFirebase() {
       if (!c.exists()) return { error: "No player has that code. Check it and try again." };
       var them = c.data().uid, name = c.data().username;
       if (lastFriends.some(function (f) { return f.id === them; })) return { error: "@" + name + " is already on your list." };
-      await F.setDoc(ref("users", me, "friends", them), { username: name });
-      var back = await F.getDoc(ref("users", them, "friends", me));
-      if (back.exists()) {
-        await ignore(F.deleteDoc(ref("requests", them + "_" + me)));
-        return { ok: "You and @" + name + " are now friends." };
-      }
-      await F.setDoc(ref("requests", me + "_" + them), { from: me, to: them, fromName: profile.username, at: F.serverTimestamp() });
-      return { ok: "Request sent to @" + name + ". Their scores show up once they accept." };
+      // their code is what lets you add yourself to their list (checked by the security rules)
+      var batch = F.writeBatch(db);
+      batch.set(ref("users", me, "friends", them), { username: name, code: code });
+      batch.set(ref("users", them, "friends", me), { username: profile.username, code: code });
+      await batch.commit();
+      await ignore(F.deleteDoc(ref("requests", them + "_" + me)));
+      await ignore(F.deleteDoc(ref("requests", me + "_" + them)));
+      return { ok: "You and @" + name + " are now friends." };
     },
     removeFriend: async function (fid) {
       var me = uid();
@@ -938,7 +926,7 @@ async function connectFirebase() {
 
 
 /* in-memory copy of what the backend returned, refreshed after every change */
-var me = null, myScores = {}, friendList = [], requestList = [], friendScoreMap = {};
+var me = null, myScores = {}, friendList = [], friendScoreMap = {};
 var WEEK = [-6, -5, -4, -3, -2, -1, 0].map(dayKey);
 
 var booted = false;
@@ -947,11 +935,11 @@ async function refresh() {
   if (me && me.needsUsername) { me = null; if (modal.hidden) pickUsername(); }
   if (me) {
     myScores = await api.myScores();
+    await api.acceptRequests();
     friendList = await api.friends();
-    requestList = await api.requests();
     friendScoreMap = await api.friendScores(WEEK, friendList.filter(function (f) { return !f.pending; }));
   } else {
-    myScores = {}; friendList = []; requestList = []; friendScoreMap = {};
+    myScores = {}; friendList = []; friendScoreMap = {};
   }
   renderAll();
 }
@@ -1225,21 +1213,14 @@ function renderFriends() {
   h += '</div></div>';
 
   h += '<div class="panel"><h3>FRIENDS</h3>';
-  h += '<p>Share your code so friends can add you.</p>';
+  h += '<p>Share your code, or add a friend with theirs. You\'ll both see each other\'s scores right away.</p>';
   h += '<div class="row"><span class="code" id="my-code">' + esc(me.code) + '</span><button class="btn ghost small" type="button" id="copy-code">Copy</button></div>';
   h += '<div class="row"><input type="text" id="add-code" placeholder="Friend code, e.g. TBT-5A3C1E" autocomplete="off" aria-label="Friend code"><button class="btn small" type="button" id="add-btn">Add</button></div>';
   h += '<div class="msg" id="add-msg"></div>';
-  if (requestList.length) {
-    h += '<p>Friend requests</p><div class="friend-list">';
-    requestList.forEach(function (r) {
-      h += '<span class="fchip">@' + esc(r.username) + ' <button type="button" data-accept="' + esc(r.id) + '" style="color:var(--done)">ACCEPT</button></span>';
-    });
-    h += '</div>';
-  }
   h += '<div class="friend-list">';
   if (!friendList.length) h += '<p>' + (api.isDemo ? "No friends yet. Try the code TBT-C8D25F." : "No friends yet. Add one with their code.") + '</p>';
   friendList.forEach(function (f) {
-    h += '<span class="fchip">@' + esc(f.username) + (f.pending ? ' <span style="color:var(--muted)">· waiting</span>' : '') + ' <button type="button" data-remove="' + esc(f.id) + '" aria-label="Remove ' + esc(f.username) + '">✕</button></span>';
+    h += '<span class="fchip">@' + esc(f.username) + (f.pending ? ' <span style="color:var(--muted)">· waiting</span>' : '') + ' <button type="button" data-remove="' + esc(f.id) + '" data-name="' + esc(f.username) + '" aria-label="Remove ' + esc(f.username) + '">✕</button></span>';
   });
   h += '</div></div>';
 
@@ -1288,14 +1269,29 @@ function renderFriends() {
   document.getElementById("add-btn").onclick = add;
   document.getElementById("add-code").onkeydown = function (e) { if (e.key === "Enter") add(); };
   el.querySelectorAll("[data-remove]").forEach(function (b) {
-    b.onclick = async function () { await api.removeFriend(b.dataset.remove); refresh(); };
+    b.onclick = function () { confirmRemove(b.dataset.remove, b.dataset.name); };
   });
   el.querySelectorAll("[data-log]").forEach(function (b) {
     b.onclick = function () { openLog(b.dataset.log); };
   });
-  el.querySelectorAll("[data-accept]").forEach(function (b) {
-    b.onclick = async function () { await api.acceptRequest(b.dataset.accept); refresh(); };
-  });
+}
+
+// Removing a friend asks first, so a stray tap on ✕ doesn't end the friendship.
+function confirmRemove(id, name) {
+  openModal(
+    '<h3 id="dlg-title">REMOVE @' + esc(name).toUpperCase() + '?</h3>' +
+    '<p>You\'ll stop seeing each other\'s scores. You can add them again later with their friend code.</p>' +
+    '<div class="msg" id="rm-msg"></div>' +
+    '<div class="dlg-actions"><button class="btn ghost small" type="button" id="rm-cancel">Cancel</button>' +
+    '<button class="btn danger small" type="button" id="rm-go">Remove</button></div>',
+    "rm-cancel");
+  document.getElementById("rm-cancel").onclick = closeModal;
+  document.getElementById("rm-go").onclick = async function () {
+    try { await api.removeFriend(id); }
+    catch (e) { console.error(e); var m = document.getElementById("rm-msg"); m.className = "msg bad"; m.textContent = "Couldn't remove @" + name + ". Try again."; return; }
+    closeModal();
+    refresh();
+  };
 }
 
 // The name button in the header: your code and sign out.
