@@ -794,6 +794,20 @@ async function connectFirebase() {
 
   var profile = null, lastFriends = [];
 
+  // Put you and another player on each other's friend lists in one write.
+  // Their friend code is what lets you add yourself to their list (checked by the security rules).
+  async function linkBoth(them, name, code) {
+    if (!name || !code) {
+      var p = await F.getDoc(ref("users", them));
+      if (!p.exists()) throw new Error("no such player");
+      name = p.data().username; code = p.data().code;
+    }
+    var batch = F.writeBatch(db);
+    batch.set(ref("users", uid(), "friends", them), { username: name, code: code });
+    batch.set(ref("users", them, "friends", uid()), { username: profile.username, code: code });
+    await batch.commit();
+  }
+
   return {
     isDemo: false,
 
@@ -861,14 +875,18 @@ async function connectFirebase() {
       await F.deleteDoc(ref("users", uid(), "scores", day + "_" + gameId));
     },
 
-    // Adding a friend writes both lists at once. "pending" only shows up for a friendship
-    // that one side hasn't finished (older requests), and it fixes itself when they visit.
+    // Adding a friend writes both lists at once. A one-sided entry (left over from the
+    // old request system) gets completed here, so it never stays "waiting".
     friends: async function () {
       var me = uid(), list = [];
       var snap = await F.getDocs(col("users", me, "friends"));
       await Promise.all(snap.docs.map(async function (d) {
         var back = await F.getDoc(ref("users", d.id, "friends", me));
-        list.push({ id: d.id, username: d.data().username, pending: !back.exists() });
+        var pending = !back.exists();
+        if (pending) {
+          try { await linkBoth(d.id); pending = false; } catch (e) { console.warn("Couldn't finish friendship", e); }
+        }
+        list.push({ id: d.id, username: d.data().username, pending: pending });
       }));
       list.sort(function (a, b) { return a.username < b.username ? -1 : 1; });
       lastFriends = list;
@@ -891,12 +909,8 @@ async function connectFirebase() {
       var c = await F.getDoc(ref("codes", code));
       if (!c.exists()) return { error: "No player has that code. Check it and try again." };
       var them = c.data().uid, name = c.data().username;
-      if (lastFriends.some(function (f) { return f.id === them; })) return { error: "@" + name + " is already on your list." };
-      // their code is what lets you add yourself to their list (checked by the security rules)
-      var batch = F.writeBatch(db);
-      batch.set(ref("users", me, "friends", them), { username: name, code: code });
-      batch.set(ref("users", them, "friends", me), { username: profile.username, code: code });
-      await batch.commit();
+      if (lastFriends.some(function (f) { return f.id === them && !f.pending; })) return { error: "@" + name + " is already your friend." };
+      await linkBoth(them, name, code);
       await ignore(F.deleteDoc(ref("requests", them + "_" + me)));
       await ignore(F.deleteDoc(ref("requests", me + "_" + them)));
       return { ok: "You and @" + name + " are now friends." };
