@@ -125,7 +125,7 @@ h1 {
   text-transform: uppercase;
 }
 .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--amber-deep); }
-.btn.danger { background: var(--danger); color: #fff; box-shadow: 0 4px 0 var(--danger-deep); }
+.btn.danger { background: var(--danger); color: var(--lab-ink); box-shadow: 0 4px 0 var(--danger-deep); }
 .btn.danger:active { box-shadow: 0 2px 0 var(--danger-deep); }
 .btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--panel-edge); box-shadow: none; padding: 8px 10px; }
 .btn.ghost:hover { border-color: var(--ledge-hi); }
@@ -986,6 +986,15 @@ function pixelEmoji(ch) {
   }
 }
 
+/* count a game click as a GoatCounter event (no-op if the script is blocked or not loaded yet) */
+function trackGame(game) {
+  try {
+    if (window.goatcounter && window.goatcounter.count) {
+      window.goatcounter.count({ path: "game/" + game.id, title: game.name, event: true });
+    }
+  } catch (e) {}
+}
+
 function pressFx(cart) {
   if (cart.classList.contains("insert")) return;
   cart.classList.add("insert");
@@ -1026,7 +1035,8 @@ function build() {
       a.querySelector(".name").textContent = game.name;
       cart.appendChild(a);
       a.addEventListener("pointerdown", function () { pressFx(cart); });
-      a.addEventListener("click", function () { pressFx(cart); });
+      a.addEventListener("click", function () { pressFx(cart); trackGame(game); });
+      a.addEventListener("auxclick", function (e) { if (e.button === 1) trackGame(game); });
 
       if (game.isDaily) {
         var c = document.createElement("span");

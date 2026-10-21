@@ -1,12 +1,12 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><meta property="og:type" content="website"><meta property="og:url" content="https://thatboytough.com/"><meta property="og:title" content="THAT BOY TOUGH"><meta property="og:description" content="Your daily games, all in one place."><meta property="og:image" content="https://thatboytough.com/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://thatboytough.com/og-image.png"><meta name="description" content="Your daily games, all in one place."></head><body>
-<title>Games Hub</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta property="og:type" content="website"><meta property="og:url" content="https://thatboytough.com/"><meta property="og:title" content="THAT BOY TOUGH"><meta property="og:description" content="Your daily games, all in one place."><meta property="og:image" content="https://thatboytough.com/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://thatboytough.com/og-image.png"><meta name="description" content="Your daily games, all in one place."><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>That Boy Tough</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Press+Start+2P&display=swap">
 <style>
-/* Layout: pixel arcade in the spirit of Eraly. Deep indigo night with a pixel starfield,
-   a console panel with amber title, then cartridge shelves with flat, hard-edged colors.
+/* Layout: pixel arcade. Deep indigo night with a pixel starfield, a console panel with amber
+   title and account controls, tabs for Games / Friends / Stats, then cartridge shelves.
    Single dark look by choice. */
 :root {
   --bg: #0e0b22;
@@ -26,7 +26,10 @@
   --done: #62e08a;
   --lab-ink: #120d2b;
   --pink: #e8607f;
+  --danger: #e5484d;
+  --danger-deep: #8f1d22;
   --splash-bg: #05040f;
+  --scrim: rgba(5, 4, 15, 0.82);
   --font-pixel: "Press Start 2P", "Courier New", ui-monospace, monospace;
   --font-body: "Pixelify Sans", ui-monospace, "Courier New", monospace;
   color-scheme: dark;
@@ -54,6 +57,18 @@ body {
 }
 .wrap { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; }
 
+/* demo strip */
+.demo {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  border: 2px dashed var(--panel-edge);
+  color: var(--muted);
+  font-size: 14px;
+}
+.demo b { font: 400 9px var(--font-pixel); color: var(--lab-ink); background: var(--pink); padding: 4px 6px; }
+.demo button { margin-left: auto; }
+
 /* console panel */
 .console {
   background: var(--panel);
@@ -62,7 +77,7 @@ body {
   padding: 20px 18px 18px;
   display: grid;
   gap: 16px;
-  margin-bottom: 44px;
+  margin-bottom: 28px;
 }
 .console-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; }
 .date {
@@ -80,6 +95,7 @@ h1 {
   color: var(--amber);
   text-shadow: 4px 4px 0 var(--amber-deep);
 }
+.side { display: grid; justify-items: end; gap: 12px; }
 .tally { text-align: right; }
 .tally .big { font-family: var(--font-pixel); font-size: clamp(1.2rem, 5vw, 1.8rem); line-height: 1.2; color: var(--amber); font-variant-numeric: tabular-nums; }
 .tally .big small { font-size: 0.6em; color: var(--muted); }
@@ -91,6 +107,42 @@ h1 {
   background: var(--led-off);
 }
 .leds i.on { background: var(--amber); box-shadow: inset 0 -3px 0 var(--amber-deep); }
+
+/* account bar */
+.acct { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.who { font-size: 15px; color: var(--muted); }
+.who b { color: var(--ink); font-weight: 600; }
+
+/* pixel buttons */
+.btn {
+  font: 400 10px/1 var(--font-pixel);
+  padding: 10px 12px;
+  border: 0;
+  cursor: pointer;
+  background: var(--amber);
+  color: var(--amber-ink);
+  box-shadow: 0 4px 0 var(--amber-deep);
+  text-transform: uppercase;
+}
+.btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--amber-deep); }
+.btn.danger { background: var(--danger); color: var(--lab-ink); box-shadow: 0 4px 0 var(--danger-deep); }
+.btn.danger:active { box-shadow: 0 2px 0 var(--danger-deep); }
+.btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--panel-edge); box-shadow: none; padding: 8px 10px; }
+.btn.ghost:hover { border-color: var(--ledge-hi); }
+.btn.small { font-size: 8px; padding: 7px 8px; }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+
+/* tabs */
+.tabs { display: flex; gap: 6px; margin-bottom: 26px; flex-wrap: wrap; }
+.tab {
+  font: 400 11px var(--font-pixel);
+  padding: 12px 14px;
+  background: var(--panel);
+  color: var(--muted);
+  border: 2px solid var(--panel-edge);
+  cursor: pointer;
+}
+.tab[aria-selected="true"] { color: var(--amber-ink); background: var(--amber); border-color: var(--amber); box-shadow: 0 4px 0 var(--amber-deep); }
 
 /* shelves */
 section { margin-bottom: 48px; }
@@ -181,7 +233,6 @@ h2::before { content: ""; flex: none; width: 10px; height: 10px; background: var
 }
 .face:hover .label { filter: brightness(1.1); }
 
-/* press: the cartridge is pushed down into the shelf slot behind the ledge, in pixel steps */
 .cart.insert { animation: insert 0.5s steps(3, end); }
 .cart.insert .label { animation: dent 0.5s steps(3, end); }
 @keyframes insert {
@@ -195,7 +246,6 @@ h2::before { content: ""; flex: none; width: 10px; height: 10px; background: var
   30%, 65% { box-shadow: inset 0 4px 0 hsl(var(--h) 70% 44%), inset 0 -4px 0 hsl(var(--h) 90% 78%); }
 }
 
-/* opened marker: appears after the game link is clicked */
 .check {
   position: absolute;
   z-index: 2;
@@ -216,12 +266,170 @@ h2::before { content: ""; flex: none; width: 10px; height: 10px; background: var
   font: 400 8px var(--font-pixel);
   color: var(--muted);
 }
+/* your logged score, or a log button, sits on the left of the grip */
+.mark {
+  position: absolute;
+  z-index: 2;
+  top: 2px; left: 4px;
+  font: 400 8px/1 var(--font-pixel);
+  padding: 5px 6px;
+  border: 2px solid var(--shadow);
+  cursor: pointer;
+  background: var(--ink);
+  color: var(--lab-ink);
+}
+.mark.log { background: var(--panel); color: var(--amber); border-color: var(--amber); }
+.mark.fail { background: var(--pink); }
 
-a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
 @media (max-width: 380px) {
   .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 10px; }
   .name { font-size: 9px; }
 }
+
+/* panels for friends and stats */
+.panels { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); align-items: start; margin-bottom: 22px; }
+.panel {
+  background: var(--panel);
+  border: 2px solid var(--panel-edge);
+  box-shadow: 0 6px 0 var(--shadow);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.panel.wide { grid-column: 1 / -1; }
+.panel h3 { margin: 0; font: 400 11px/1.5 var(--font-pixel); color: var(--amber); }
+.panel p { margin: 0; color: var(--muted); }
+.empty { text-align: center; padding: 28px 16px; display: grid; gap: 14px; justify-items: center; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.code {
+  font: 400 14px var(--font-pixel);
+  color: var(--ink);
+  background: var(--shadow);
+  padding: 10px 12px;
+  user-select: all;
+}
+input[type="text"], input[type="number"], select, textarea {
+  font: 16px var(--font-body);
+  color: var(--ink);
+  background: var(--shadow);
+  border: 2px solid var(--panel-edge);
+  padding: 9px 10px;
+  min-width: 0;
+}
+textarea { width: 100%; min-height: 120px; resize: vertical; }
+.msg { font-size: 14px; color: var(--muted); min-height: 1.4em; }
+.msg.ok { color: var(--done); }
+.msg.bad { color: var(--pink); }
+
+.stand { display: grid; gap: 6px; }
+.stand-row {
+  display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center;
+  padding: 8px 10px; background: var(--shell); font-variant-numeric: tabular-nums;
+}
+.stand-row.me { outline: 2px solid var(--amber); outline-offset: -2px; }
+.stand-row .rk { font: 400 10px var(--font-pixel); color: var(--muted); }
+.stand-row .wins { font: 400 11px var(--font-pixel); color: var(--amber); }
+.crown { color: var(--amber); }
+
+.board { display: grid; gap: 4px; }
+.brow {
+  display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 12px; align-items: center;
+  padding: 8px 0;
+  border-bottom: 2px dotted var(--panel-edge);
+}
+.brow:last-child { border-bottom: 0; }
+.bgame { font: 400 9px/1.6 var(--font-pixel); text-transform: uppercase; display: flex; gap: 8px; align-items: center; min-width: 0; }
+.bgame i { flex: none; width: 10px; height: 10px; background: hsl(var(--h) 85% 62%); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.pchip {
+  display: inline-flex; gap: 6px; align-items: baseline;
+  padding: 4px 8px; background: var(--shell); font-size: 15px; font-variant-numeric: tabular-nums;
+}
+.pchip .n { color: var(--muted); font-size: 13px; }
+.pchip b { font-weight: 700; }
+.pchip.first { background: var(--amber); color: var(--amber-ink); }
+.pchip.first .n { color: var(--amber-ink); }
+.pchip.me:not(.first) { outline: 2px solid var(--amber); outline-offset: -2px; }
+.pchip.x b { color: var(--pink); }
+.pchip.first.x b { color: var(--amber-ink); }
+@media (max-width: 560px) { .brow { grid-template-columns: 1fr; gap: 6px; } }
+
+.friend-list { display: flex; gap: 6px; flex-wrap: wrap; }
+.fchip { display: inline-flex; gap: 6px; align-items: center; padding: 4px 4px 4px 10px; background: var(--shell); }
+.fchip button { background: none; border: 0; color: var(--muted); cursor: pointer; font: 400 10px var(--font-pixel); padding: 4px 6px; }
+.fchip button:hover { color: var(--pink); }
+
+.tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.tile { background: var(--shell); padding: 12px; display: grid; gap: 6px; }
+.tile .v { font: 400 20px var(--font-pixel); color: var(--amber); font-variant-numeric: tabular-nums; }
+.tile .k { font-size: 14px; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 2px dotted var(--panel-edge); white-space: nowrap; }
+th { font: 400 8px var(--font-pixel); color: var(--muted); text-transform: uppercase; }
+td.num, th.num { text-align: right; }
+
+/* modal */
+.modal {
+  position: fixed; inset: 0; z-index: 50;
+  display: grid; place-items: center;
+  background: var(--scrim);
+  padding: 16px;
+}
+.dialog {
+  width: min(100%, 480px);
+  max-height: calc(100% - 16px);
+  overflow-y: auto;
+  background: var(--panel);
+  border: 2px solid var(--panel-edge);
+  box-shadow: 0 8px 0 var(--shadow);
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+.dialog h3 { margin: 0; font: 400 13px/1.5 var(--font-pixel); color: var(--amber); }
+.dialog p { margin: 0; color: var(--muted); }
+.dialog .row > input[type="text"] { flex: 1; }
+.sep { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+.sep::before, .sep::after { content: ""; flex: 1; height: 2px; background: var(--panel-edge); }
+.btn.google { background: var(--ink); color: var(--lab-ink); box-shadow: 0 4px 0 var(--muted); width: 100%; padding: 13px; }
+.parsed {
+  display: grid; gap: 10px;
+  padding: 12px; background: var(--shell);
+}
+.parsed .row label { font-size: 14px; color: var(--muted); }
+.parsed select { flex: 1; }
+.parsed input[type="number"] { width: 110px; }
+.dlg-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* log pop-up */
+.taps { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 8px; }
+.tapn {
+  font: 400 16px var(--font-pixel);
+  height: 52px;
+  border: 0;
+  cursor: pointer;
+  background: var(--shell);
+  color: var(--ink);
+  box-shadow: inset 0 -4px 0 var(--shell-edge), 0 4px 0 var(--shadow);
+}
+.tapn:hover { background: var(--ledge-hi); }
+.tapn:active { transform: translateY(2px); box-shadow: inset 0 -2px 0 var(--shell-edge), 0 2px 0 var(--shadow); }
+.tapn.x { color: var(--pink); }
+.tapn.more { font-size: 11px; }
+.tapn.cur { background: var(--amber); color: var(--amber-ink); box-shadow: inset 0 -4px 0 var(--amber-deep), 0 4px 0 var(--shadow); }
+.dialog input[type="number"] { flex: 1; }
+.mark.stamp { animation: stamp 0.6s steps(4, end); }
+@keyframes stamp {
+  0% { transform: scale(2.2) rotate(-8deg); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+/* friends' scores you can't see until you log yours */
+.locked { display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 15px; }
+.locked .dots { letter-spacing: 3px; color: var(--ledge-hi); }
 
 /* boot-up splash */
 .splash {
@@ -305,53 +513,77 @@ a:focus-visible, button:focus-visible { outline: 3px solid var(--amber); outline
 </div>
 
 <div class="wrap">
+  <div class="demo" id="demo">
+    <b>DEMO</b>
+    <span>Accounts, friends and scores are simulated in this browser. Sam, Alex, Jordan and Maya are sample players.</span>
+    <button class="btn ghost small" id="demo-reset" type="button">Reset demo</button>
+  </div>
+
   <div class="console">
     <div class="console-top">
       <div>
         <div class="date" id="date"></div>
         <h1>THAT BOY TOUGH</h1>
       </div>
-      <div class="tally">
-        <div class="big"><span id="done-n">0</span><small> / <span id="total-n">0</span></small></div>
-        <div class="sub" id="status"></div>
+      <div class="side">
+        <div class="acct" id="acct"></div>
+        <div class="tally">
+          <div class="big"><span id="done-n">0</span><small> / <span id="total-n">0</span></small></div>
+          <div class="sub" id="status"></div>
+        </div>
       </div>
     </div>
     <div class="leds" id="leds" aria-hidden="true"></div>
   </div>
-  <main id="groups"></main>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-games" aria-selected="true" data-view="games">GAMES</button>
+    <button class="tab" role="tab" id="tab-friends" aria-selected="false" data-view="friends">FRIENDS</button>
+    <button class="tab" role="tab" id="tab-stats" aria-selected="false" data-view="stats">MY STATS</button>
+  </div>
+
+  <main id="view-games"><div id="groups"></div></main>
+  <main id="view-friends" hidden></main>
+  <main id="view-stats" hidden></main>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title"></div>
 </div>
 
 <script>
 // Edit this list to add, remove or reorder games. isDaily:false means the game is never marked as opened.
+// score says how a result is compared: "guesses" (fewer is better) or "points" (more is better,
+// unless low:true). max is shown as "3/6". Games marked "?" still need a real share text to confirm the format.
 var GROUPS = [
   { name: "Geography & World", games: [
-    { id: "maptap", name: "Map tap", url: "https://maptap.gg", emoji: "📍", isDaily: true },
-    { id: "worldle", name: "Worldle", url: "https://worldle.teuteuf.fr", emoji: "🌍", isDaily: true },
-    { id: "statle", name: "Statle", url: "https://statele.teuteuf.fr", emoji: "📊", isDaily: true },
-    { id: "headcount", name: "Head count", url: "https://flightq.app/headcount", emoji: "👥", isDaily: true },
-    { id: "geogrid", name: "Geogrid", url: "https://www.geogridgame.com", emoji: "🔲", isDaily: true },
-    { id: "flaggle", name: "Flaggle", url: "https://www.flagle.io", emoji: "🚩", isDaily: true },
-    { id: "globle", name: "Globle", url: "https://globle-game.com/game", emoji: "🌐", isDaily: true },
-    { id: "ethnoguesser", name: "Ethnoguesser", url: "https://hbd.gg/play/", emoji: "🧭", isDaily: true },
-    { id: "timeguesser", name: "Timeguesser", url: "https://timeguessr.com", emoji: "⏳", isDaily: true },
-    { id: "farflung", name: "Farflung", url: "https://farflung.game", emoji: "🗺️", isDaily: true },
-    { id: "flagpie", name: "Flagpie", url: "https://flagpie.net", emoji: "🥧", isDaily: true },
-    { id: "tradle", name: "Tradle", url: "https://tradle.net", emoji: "🚢", isDaily: true }
+    { id: "maptap", name: "Map tap", url: "https://maptap.gg", emoji: "📍", isDaily: true, score: { type: "points", max: 1000 } },
+    { id: "worldle", name: "Worldle", url: "https://worldle.teuteuf.fr", emoji: "🌍", isDaily: true, score: { type: "guesses", max: 6 } },
+    { id: "statle", name: "Statle", url: "https://statele.teuteuf.fr", emoji: "📊", isDaily: true, score: { type: "guesses", max: 6 } },
+    { id: "headcount", name: "Head count", url: "https://flightq.app/headcount", emoji: "👥", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
+    { id: "geogrid", name: "Geogrid", url: "https://www.geogridgame.com", emoji: "🔲", isDaily: true, score: { type: "points", low: true } },
+    { id: "flaggle", name: "Flaggle", url: "https://www.flagle.io", emoji: "🚩", isDaily: true, score: { type: "guesses", max: 6 } },
+    { id: "globle", name: "Globle", url: "https://globle-game.com/game", emoji: "🌐", isDaily: true, score: { type: "guesses" } },
+    { id: "ethnoguesser", name: "Ethnoguesser", url: "https://hbd.gg/play/", emoji: "🧭", isDaily: true, score: { type: "points" } }, // ?
+    { id: "timeguesser", name: "Timeguesser", url: "https://timeguessr.com", emoji: "⏳", isDaily: true, score: { type: "points", max: 50000 } },
+    { id: "farflung", name: "Farflung", url: "https://farflung.game", emoji: "🗺️", isDaily: true, score: { type: "points" } }, // ?
+    { id: "flagpie", name: "Flagpie", url: "https://flagpie.net", emoji: "🥧", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
+    { id: "tradle", name: "Tradle", url: "https://tradle.net", emoji: "🚢", isDaily: true, score: { type: "guesses", max: 6 } }
   ]},
   { name: "Challenges & Trivia", games: [
-    { id: "krillion", name: "Krillion", url: "https://krillion.io", emoji: "🦐", isDaily: true },
-    { id: "noillirk", name: "Noillirk", url: "https://noillirk.com", emoji: "🔤", isDaily: true },
-    { id: "dailysortie", name: "Daily Sortie", url: "https://dailysortie.com", emoji: "✈️", isDaily: true },
-    { id: "costcotle", name: "Costcotle", url: "https://costcodle.com", emoji: "🛒", isDaily: true },
-    { id: "magnitudle", name: "Size it up Magnitude", url: "https://magnitudle.com/size-it-up", emoji: "📏", isDaily: true },
-    { id: "poeltl", name: "Poeltl", url: "https://poeltl.nbpa.com/landing-page", emoji: "🏀", isDaily: true },
+    { id: "krillion", name: "Krillion", url: "https://krillion.io", emoji: "🦐", isDaily: true, score: { type: "points" } }, // ?
+    { id: "noillirk", name: "Noillirk", url: "https://noillirk.com", emoji: "🔤", isDaily: true, score: { type: "points" } }, // ?
+    { id: "dailysortie", name: "Daily Sortie", url: "https://dailysortie.com", emoji: "✈️", isDaily: true, score: { type: "points" } }, // ?
+    { id: "costcotle", name: "Costcotle", url: "https://costcodle.com", emoji: "🛒", isDaily: true, score: { type: "guesses", max: 6 } },
+    { id: "magnitudle", name: "Size it up Magnitude", url: "https://magnitudle.com/size-it-up", emoji: "📏", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
+    { id: "poeltl", name: "Poeltl", url: "https://poeltl.nbpa.com/landing-page", emoji: "🏀", isDaily: true, score: { type: "guesses", max: 8 } },
     { id: "lessgames", name: "Less games", url: "https://lessgames.com", emoji: "🎲", isDaily: false },
-    { id: "elementle", name: "Elementle", url: "https://elementlegame.com", emoji: "⚗️", isDaily: true },
-    { id: "riddlerr", name: "Riddler", url: "https://riddlerr.com", emoji: "🧩", isDaily: true },
-    { id: "marveldle", name: "Marveldle", url: "https://marveldle.com/menu", emoji: "🦸", isDaily: true },
-    { id: "cutle", name: "Cutle", url: "https://cutle.org", emoji: "✂️", isDaily: true },
-    { id: "eraly", name: "Eraly", url: "https://eraly.io", emoji: "🕰️", isDaily: true },
-    { id: "dailytens", name: "Daily Tens", url: "https://dailytens.com", emoji: "🔟", isDaily: true }
+    { id: "elementle", name: "Elementle", url: "https://elementlegame.com", emoji: "⚗️", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
+    { id: "riddlerr", name: "Riddler", url: "https://riddlerr.com", emoji: "🧩", isDaily: true, score: { type: "guesses" } }, // ?
+    { id: "marveldle", name: "Marveldle", url: "https://marveldle.com/menu", emoji: "🦸", isDaily: true, score: { type: "guesses" } }, // ?
+    { id: "cutle", name: "Cutle", url: "https://cutle.org", emoji: "✂️", isDaily: true, score: { type: "guesses", max: 6 } }, // ?
+    { id: "eraly", name: "Eraly", url: "https://eraly.io", emoji: "🕰️", isDaily: true, score: { type: "points" } }, // ?
+    { id: "dailytens", name: "Daily Tens", url: "https://dailytens.com", emoji: "🔟", isDaily: true, score: { type: "points", max: 10 } }
   ]}
 ];
 
@@ -360,10 +592,12 @@ var CHIPS = ["#f3d98a", "#7fe0d6", "#9be37a", "#f08a3c", "#e8607f"];
 var KEY = "games-hub-daily-v1";
 var CHECK_SVG = '<svg viewBox="0 0 8 8" shape-rendering="crispEdges" fill="currentColor"><rect x="1" y="4" width="1" height="1"/><rect x="2" y="5" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="4" y="5" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/></svg>';
 
-function todayKey() {
+function dayKey(offset) {
   var d = new Date();
+  if (offset) d.setDate(d.getDate() + offset);
   return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 }
+function todayKey() { return dayKey(0); }
 function load() {
   try {
     var raw = localStorage.getItem(KEY);
@@ -378,14 +612,353 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catc
 
 var state = load();
 var allGames = [];
-GROUPS.forEach(function (g) { g.games.forEach(function (x) { allGames.push(x); }); });
+var gameIndex = {};
+GROUPS.forEach(function (g) { g.games.forEach(function (x) { allGames.push(x); gameIndex[x.id] = x; }); });
 var dailyGames = allGames.filter(function (x) { return x.isDaily; });
+var scoredGames = allGames.filter(function (x) { return x.score; });
+allGames.forEach(function (x, i) { x.hue = HUES[i % HUES.length]; });
 
 function host(url) {
   try { return new URL(url).hostname.replace(/^www\./, ""); } catch (e) { return url; }
 }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+}
 
-/* draw an emoji on a tiny canvas and harden its edges so it scales up as pixel art */
+/* ---------------------------------------------------------------------------
+   Scores: formatting and comparing
+   ------------------------------------------------------------------------- */
+function fmtScore(game, s) {
+  var sc = game.score, max = sc.max;
+  if (s.failed) return "X" + (sc.type === "guesses" && max ? "/" + max : "");
+  var v = sc.type === "points" ? Number(s.value).toLocaleString() : s.value;
+  return v + (max ? "/" + max.toLocaleString() : "") + (sc.type === "points" && !max ? " pts" : "");
+}
+// negative when a is better than b
+function cmpScore(game, a, b) {
+  if (a.failed && b.failed) return 0;
+  if (a.failed) return 1;
+  if (b.failed) return -1;
+  var lowerWins = game.score.type === "guesses" || game.score.low;
+  return lowerWins ? a.value - b.value : b.value - a.value;
+}
+
+/* ---------------------------------------------------------------------------
+   Backend. This demo version keeps everything in this browser and invents the
+   sample friends' scores. The live version swaps this object for Supabase calls
+   with the same methods, so the rest of the page stays the same.
+   ------------------------------------------------------------------------- */
+var DEMO_KEY = "tbt-demo-v1";
+var SAMPLE = {
+  sam:    { code: "TBT-5A3C1E", skill: 0.75 },
+  alex:   { code: "TBT-9F02BD", skill: 0.55 },
+  jordan: { code: "TBT-41E7A0", skill: 0.65 },
+  maya:   { code: "TBT-C8D25F", skill: 0.85 }
+};
+
+function seeded(str) {
+  var h = 1779033703 ^ str.length;
+  for (var i = 0; i < str.length; i++) { h = Math.imul(h ^ str.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+  return function () {
+    h = Math.imul(h ^ (h >>> 16), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909);
+    var t = (h ^= h >>> 16) >>> 0;
+    return t / 4294967296;
+  };
+}
+function fakeScore(who, skill, game, day) {
+  var r = seeded(who + "|" + game.id + "|" + day);
+  if (r() > 0.72) return null;
+  var sc = game.score, q = Math.pow(r(), 1 + skill * 1.5);
+  if (sc.type === "guesses") {
+    var max = sc.max || 10;
+    if (r() < 0.12 * (1.2 - skill)) return { value: null, failed: true };
+    return { value: 1 + Math.floor(q * (max - 1)), failed: false };
+  }
+  if (sc.low) return { value: 5 + Math.floor(q * 300), failed: false };
+  var top = sc.max || 1000;
+  var v = Math.round(top * (1 - q * 0.75));
+  if (top >= 1000) v = Math.round(v / (top >= 10000 ? 10 : 1));
+  if (top >= 10000) v *= 10;
+  return { value: Math.max(0, Math.min(top, v)), failed: false };
+}
+
+var demo = {
+  isDemo: true,
+  data: null,
+  load: function () {
+    try { this.data = JSON.parse(localStorage.getItem(DEMO_KEY) || "null"); } catch (e) { this.data = null; }
+    if (!this.data) this.data = { user: null, scores: {}, friends: ["sam", "alex"], pending: ["jordan"] };
+  },
+  persist: function () { try { localStorage.setItem(DEMO_KEY, JSON.stringify(this.data)); } catch (e) {} },
+
+  session: async function () { return this.data.user || (this.data.signingIn ? { needsUsername: true } : null); },
+  signInWithGoogle: async function () { return {}; },
+  claimUsername: async function (username) {
+    username = username.toLowerCase();
+    if (SAMPLE[username]) return { error: "That username is taken. Try another." };
+    this.data.signingIn = false;
+    this.data.user = { id: username, username: username, code: "TBT-" + Math.floor(seeded(username)() * 0xffffff).toString(16).toUpperCase().padStart(6, "0") };
+    // a week of example history so stats and the weekly table aren't empty
+    var mine = this.data.scores;
+    for (var d = -6; d <= -1; d++) {
+      var day = dayKey(d);
+      scoredGames.forEach(function (g) {
+        var s = fakeScore(username, 0.65, g, day);
+        if (s) { mine[day] = mine[day] || {}; mine[day][g.id] = s; }
+      });
+    }
+    this.persist();
+    return { user: this.data.user };
+  },
+  signOut: async function () { this.data.user = null; this.data.scores = {}; this.persist(); },
+
+  myScores: async function () { return this.data.scores; },
+  saveScore: async function (gameId, day, s) {
+    this.data.scores[day] = this.data.scores[day] || {};
+    this.data.scores[day][gameId] = { value: s.failed ? null : s.value, failed: !!s.failed, raw: s.raw || "" };
+    this.persist();
+  },
+  deleteScore: async function (gameId, day) {
+    if (this.data.scores[day]) delete this.data.scores[day][gameId];
+    this.persist();
+  },
+
+  friends: async function () {
+    return this.data.friends.map(function (n) { return { id: n, username: n, pending: false }; });
+  },
+  requests: async function () {
+    return this.data.pending.map(function (n) { return { id: n, username: n }; });
+  },
+  acceptRequest: async function (id) {
+    this.data.pending = this.data.pending.filter(function (n) { return n !== id; });
+    if (this.data.friends.indexOf(id) === -1) this.data.friends.push(id);
+    this.persist();
+  },
+  addFriend: async function (code) {
+    code = code.trim().toUpperCase();
+    if (this.data.user && code === this.data.user.code) return { error: "That's your own code." };
+    var name = Object.keys(SAMPLE).filter(function (n) { return SAMPLE[n].code === code; })[0];
+    if (!name) return { error: "No player has that code. Codes look like TBT-5A3C1E." };
+    if (this.data.friends.indexOf(name) !== -1) return { error: name + " is already your friend." };
+    this.data.friends.push(name);
+    this.data.pending = this.data.pending.filter(function (n) { return n !== name; });
+    this.persist();
+    return { ok: "Added " + name + ". In the live version they'll need to accept first." };
+  },
+  removeFriend: async function (id) {
+    this.data.friends = this.data.friends.filter(function (n) { return n !== id; });
+    this.persist();
+  },
+  friendScores: async function (days) {
+    var out = {};
+    this.data.friends.forEach(function (n) {
+      out[n] = {};
+      days.forEach(function (day) {
+        scoredGames.forEach(function (g) {
+          var s = fakeScore(n, SAMPLE[n].skill, g, day);
+          if (s) { out[n][day] = out[n][day] || {}; out[n][day][g.id] = s; }
+        });
+      });
+    });
+    return out;
+  },
+  reset: function () { try { localStorage.removeItem(DEMO_KEY); } catch (e) {} this.load(); }
+};
+var api = demo;
+api.load();
+
+/* ---------------------------------------------------------------------------
+   Live backend: Firebase (project "thatboytough"). Same methods as the demo.
+   The SDK loads only on thatboytough.com (and localhost for testing); anywhere
+   else, or with ?demo in the address, the page runs the demo instead.
+   ------------------------------------------------------------------------- */
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAf83Tfl_rrFANpAdNuTjV_AanZxoofCgQ",
+  authDomain: "thatboytough.firebaseapp.com",
+  projectId: "thatboytough",
+  storageBucket: "thatboytough.firebasestorage.app",
+  messagingSenderId: "632019908771",
+  appId: "1:632019908771:web:093ed37adde1a4c09c6716"
+};
+var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+
+async function connectFirebase() {
+  var A = await import(FIREBASE_SDK + "firebase-app.js");
+  var U = await import(FIREBASE_SDK + "firebase-auth.js");
+  var F = await import(FIREBASE_SDK + "firebase-firestore.js");
+  var app = A.initializeApp(FIREBASE_CONFIG);
+  var auth = U.getAuth(app);
+  var db = F.getFirestore(app);
+  function ref() { return F.doc.apply(null, [db].concat(Array.prototype.slice.call(arguments))); }
+  function col() { return F.collection.apply(null, [db].concat(Array.prototype.slice.call(arguments))); }
+  function uid() { return auth.currentUser && auth.currentUser.uid; }
+  async function ignore(p) { try { await p; } catch (e) {} }
+
+  // Coming back from a Google redirect (used when pop-ups are blocked)
+  await ignore(U.getRedirectResult(auth));
+  await new Promise(function (res) { var off = U.onAuthStateChanged(auth, function () { off(); res(); }); });
+
+  var profile = null, lastFriends = [];
+
+  return {
+    isDemo: false,
+
+    session: async function () {
+      if (!auth.currentUser) { profile = null; return null; }
+      if (!profile || profile.id !== uid()) {
+        var snap = await F.getDoc(ref("users", uid()));
+        if (!snap.exists()) return { needsUsername: true };
+        profile = { id: uid(), username: snap.data().username, code: snap.data().code };
+      }
+      return profile;
+    },
+    signInWithGoogle: async function () {
+      var provider = new U.GoogleAuthProvider();
+      try {
+        await U.signInWithPopup(auth, provider);
+        return {};
+      } catch (e) {
+        if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") return { cancelled: true };
+        if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
+          await U.signInWithRedirect(auth, provider);
+          return { redirect: true };
+        }
+        return { error: "Google sign-in didn't work (" + e.code + "). Try again." };
+      }
+    },
+    claimUsername: async function (name) {
+      if ((await F.getDoc(ref("usernames", name))).exists()) return { error: "That username is taken. Try another." };
+      for (var tries = 0; tries < 3; tries++) {
+        var bytes = new Uint8Array(3);
+        crypto.getRandomValues(bytes);
+        var code = "TBT-" + Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, "0"); }).join("").toUpperCase();
+        var batch = F.writeBatch(db);
+        batch.set(ref("usernames", name), { uid: uid() });
+        batch.set(ref("codes", code), { uid: uid(), username: name });
+        batch.set(ref("users", uid()), { username: name, code: code, createdAt: F.serverTimestamp() });
+        try {
+          await batch.commit();
+          profile = { id: uid(), username: name, code: code };
+          return { user: profile };
+        } catch (e) {
+          if ((await F.getDoc(ref("usernames", name))).exists()) return { error: "That username was just taken. Try another." };
+        }
+      }
+      return { error: "Couldn't save your username. Try again." };
+    },
+    signOut: async function () { profile = null; lastFriends = []; await U.signOut(auth); },
+
+    myScores: async function () {
+      var out = {};
+      var snap = await F.getDocs(F.query(col("users", uid(), "scores"), F.where("day", ">=", dayKey(-365))));
+      snap.forEach(function (d) {
+        var s = d.data();
+        out[s.day] = out[s.day] || {};
+        out[s.day][s.game] = { value: s.value, failed: s.failed, raw: s.raw || "" };
+      });
+      return out;
+    },
+    saveScore: async function (gameId, day, s) {
+      await F.setDoc(ref("users", uid(), "scores", day + "_" + gameId), {
+        game: gameId, day: day, value: s.failed ? null : s.value, failed: !!s.failed, raw: s.raw || "", at: F.serverTimestamp()
+      });
+    },
+    deleteScore: async function (gameId, day) {
+      await F.deleteDoc(ref("users", uid(), "scores", day + "_" + gameId));
+    },
+
+    // Your list holds everyone you've added; a friend is "pending" until they add you back.
+    friends: async function () {
+      var me = uid(), list = [];
+      var snap = await F.getDocs(col("users", me, "friends"));
+      await Promise.all(snap.docs.map(async function (d) {
+        var back = await F.getDoc(ref("users", d.id, "friends", me));
+        list.push({ id: d.id, username: d.data().username, pending: !back.exists() });
+      }));
+      list.sort(function (a, b) { return a.username < b.username ? -1 : 1; });
+      lastFriends = list;
+      return list;
+    },
+    requests: async function () {
+      var me = uid();
+      var snap = await F.getDocs(F.query(col("requests"), F.where("to", "==", me)));
+      var mine = {};
+      lastFriends.forEach(function (f) { mine[f.id] = true; });
+      return snap.docs
+        .map(function (d) { return { id: d.data().from, username: d.data().fromName }; })
+        .filter(function (r) { return !mine[r.id]; });
+    },
+    acceptRequest: async function (fromUid) {
+      var me = uid();
+      var req = await F.getDoc(ref("requests", fromUid + "_" + me));
+      if (!req.exists()) return;
+      await F.setDoc(ref("users", me, "friends", fromUid), { username: req.data().fromName });
+      await ignore(F.deleteDoc(ref("requests", fromUid + "_" + me)));
+    },
+    addFriend: async function (code) {
+      var me = uid();
+      code = code.trim().toUpperCase();
+      if (!/^TBT-[0-9A-F]{6}$/.test(code)) return { error: "Codes look like TBT-5A3C1E." };
+      if (profile && code === profile.code) return { error: "That's your own code." };
+      var c = await F.getDoc(ref("codes", code));
+      if (!c.exists()) return { error: "No player has that code. Check it and try again." };
+      var them = c.data().uid, name = c.data().username;
+      if (lastFriends.some(function (f) { return f.id === them; })) return { error: "@" + name + " is already on your list." };
+      await F.setDoc(ref("users", me, "friends", them), { username: name });
+      var back = await F.getDoc(ref("users", them, "friends", me));
+      if (back.exists()) {
+        await ignore(F.deleteDoc(ref("requests", them + "_" + me)));
+        return { ok: "You and @" + name + " are now friends." };
+      }
+      await F.setDoc(ref("requests", me + "_" + them), { from: me, to: them, fromName: profile.username, at: F.serverTimestamp() });
+      return { ok: "Request sent to @" + name + ". Their scores show up once they accept." };
+    },
+    removeFriend: async function (fid) {
+      var me = uid();
+      await F.deleteDoc(ref("users", me, "friends", fid));
+      await ignore(F.deleteDoc(ref("users", fid, "friends", me)));
+      await ignore(F.deleteDoc(ref("requests", me + "_" + fid)));
+      await ignore(F.deleteDoc(ref("requests", fid + "_" + me)));
+    },
+    friendScores: async function (days, friends) {
+      var out = {};
+      await Promise.all((friends || []).map(async function (f) {
+        out[f.id] = {};
+        var snap = await F.getDocs(F.query(col("users", f.id, "scores"), F.where("day", ">=", days[0])));
+        snap.forEach(function (d) {
+          var s = d.data();
+          out[f.id][s.day] = out[f.id][s.day] || {};
+          out[f.id][s.day][s.game] = { value: s.value, failed: s.failed };
+        });
+      }));
+      return out;
+    }
+  };
+}
+
+
+/* in-memory copy of what the backend returned, refreshed after every change */
+var me = null, myScores = {}, friendList = [], requestList = [], friendScoreMap = {};
+var WEEK = [-6, -5, -4, -3, -2, -1, 0].map(dayKey);
+
+var booted = false;
+async function refresh() {
+  me = await api.session();
+  if (me && me.needsUsername) { me = null; if (modal.hidden) pickUsername(); }
+  if (me) {
+    myScores = await api.myScores();
+    friendList = await api.friends();
+    requestList = await api.requests();
+    friendScoreMap = await api.friendScores(WEEK, friendList.filter(function (f) { return !f.pending; }));
+  } else {
+    myScores = {}; friendList = []; requestList = []; friendScoreMap = {};
+  }
+  renderAll();
+}
+
+/* ---------------------------------------------------------------------------
+   Games view (the original hub, plus your score on each cartridge)
+   ------------------------------------------------------------------------- */
 function pixelEmoji(ch) {
   var c = document.createElement("canvas");
   c.width = 20; c.height = 20;
@@ -431,7 +1004,6 @@ function pressFx(cart) {
 function build() {
   var root = document.getElementById("groups");
   root.innerHTML = "";
-  var idx = 0;
   GROUPS.forEach(function (g, gi) {
     var sec = document.createElement("section");
     var head = document.createElement("div");
@@ -451,8 +1023,7 @@ function build() {
       var cart = document.createElement("div");
       cart.className = "cart";
       cart.dataset.id = game.id;
-      cart.style.setProperty("--h", HUES[idx % HUES.length]);
-      idx++;
+      cart.style.setProperty("--h", game.hue);
 
       var a = document.createElement("a");
       a.className = "face";
@@ -482,6 +1053,14 @@ function build() {
         t.textContent = "ANY TIME";
         cart.appendChild(t);
       }
+      if (game.score) {
+        var mk = document.createElement("button");
+        mk.type = "button";
+        mk.className = "mark";
+        mk.hidden = true;
+        mk.addEventListener("click", function () { openLog(game.id); });
+        cart.appendChild(mk);
+      }
       slot.appendChild(cart);
       grid.appendChild(slot);
     });
@@ -502,7 +1081,8 @@ function rollover() {
   if (state.date !== todayKey()) {
     state = { date: todayKey(), done: {} };
     save();
-    paint();
+    WEEK = [-6, -5, -4, -3, -2, -1, 0].map(dayKey);
+    refresh();
   }
 }
 
@@ -527,11 +1107,19 @@ function paint() {
   }
   for (var j = 0; j < leds.children.length; j++) leds.children[j].className = j < n ? "on" : "";
 
+  var today = myScores[todayKey()] || {};
   allGames.forEach(function (game) {
     var cart = document.querySelector('.cart[data-id="' + game.id + '"]');
     var isDone = game.isDaily && !!state.done[game.id];
     cart.classList.toggle("done", isDone);
     cart.querySelector(".face").setAttribute("aria-label", "Play " + game.name + (isDone ? " (opened today)" : ""));
+    var mk = cart.querySelector(".mark");
+    if (!mk) return;
+    var s = today[game.id];
+    mk.hidden = !me;
+    mk.className = "mark" + (s ? (s.failed ? " fail" : "") : " log");
+    mk.textContent = s ? fmtScore(game, s) : "+ LOG";
+    mk.setAttribute("aria-label", s ? "Your " + game.name + " score today: " + fmtScore(game, s) + ". Edit" : "Log your " + game.name + " score");
   });
 
   document.querySelectorAll(".sec-count").forEach(function (el) {
@@ -541,6 +1129,416 @@ function paint() {
     el.textContent = d + "/" + daily.length + " opened";
   });
 }
+
+/* ---------------------------------------------------------------------------
+   Account bar and tabs
+   ------------------------------------------------------------------------- */
+function renderAcct() {
+  var el = document.getElementById("acct");
+  if (!booted) { el.innerHTML = ""; return; }
+  if (!me) {
+    el.innerHTML = '<button class="btn" type="button" id="btn-signin">Sign in</button>';
+    document.getElementById("btn-signin").onclick = openSignIn;
+  } else {
+    el.innerHTML = '<button class="btn ghost" type="button" id="btn-me" aria-label="Your account, @' + esc(me.username) + '">@' + esc(me.username) + ' ▾</button>';
+    document.getElementById("btn-me").onclick = openAccount;
+  }
+}
+
+var view = "games";
+function showView(v) {
+  view = v;
+  ["games", "friends", "stats"].forEach(function (k) {
+    document.getElementById("view-" + k).hidden = k !== v;
+    document.getElementById("tab-" + k).setAttribute("aria-selected", k === v ? "true" : "false");
+  });
+  try { localStorage.setItem("tbt-view", v); } catch (e) {}
+}
+document.querySelectorAll(".tab").forEach(function (t) {
+  t.addEventListener("click", function () { showView(t.dataset.view); });
+});
+
+function signInPrompt(what) {
+  return '<div class="panels"><div class="panel wide empty">' +
+    '<h3>SIGN IN TO ' + what + '</h3>' +
+    '<p>Log your results from each game, add friends with a code, and see who won the day.</p>' +
+    '<button class="btn" type="button" data-signin>Sign in</button></div></div>';
+}
+
+/* ---------------------------------------------------------------------------
+   Friends view: weekly table, today's board, friend codes
+   ------------------------------------------------------------------------- */
+function players() {
+  var list = [{ id: me.id, username: me.username, isMe: true, scores: myScores }];
+  friendList.forEach(function (f) { if (!f.pending) list.push({ id: f.id, username: f.username, isMe: false, scores: friendScoreMap[f.id] || {} }); });
+  return list;
+}
+// For one game on one day: who played, best first, with shared ranks for ties.
+function rankGame(game, day, people) {
+  var rows = [];
+  people.forEach(function (p) {
+    var s = (p.scores[day] || {})[game.id];
+    if (s) rows.push({ p: p, s: s });
+  });
+  rows.sort(function (a, b) { return cmpScore(game, a.s, b.s); });
+  rows.forEach(function (r, i) {
+    r.rank = i > 0 && cmpScore(game, rows[i - 1].s, r.s) === 0 ? rows[i - 1].rank : i + 1;
+  });
+  return rows;
+}
+// A "win" is finishing first (ties included) in a game at least two of you played.
+function winsOn(day, people) {
+  var w = {};
+  people.forEach(function (p) { w[p.id] = 0; });
+  scoredGames.forEach(function (g) {
+    var rows = rankGame(g, day, people);
+    if (rows.length < 2) return;
+    rows.forEach(function (r) { if (r.rank === 1 && !r.s.failed) w[r.p.id]++; });
+  });
+  return w;
+}
+
+function renderFriends() {
+  var el = document.getElementById("view-friends");
+  if (!me) { el.innerHTML = signInPrompt("PLAY WITH FRIENDS"); return; }
+  var people = players();
+  var today = todayKey();
+
+  var week = {}, todayW = winsOn(today, people);
+  people.forEach(function (p) { week[p.id] = 0; });
+  WEEK.forEach(function (d) {
+    var w = winsOn(d, people);
+    Object.keys(w).forEach(function (k) { week[k] += w[k]; });
+  });
+  var standing = people.slice().sort(function (a, b) { return week[b.id] - week[a.id] || todayW[b.id] - todayW[a.id]; });
+
+  var h = '<div class="panels">';
+
+  h += '<div class="panel"><h3>THIS WEEK</h3><p>Wins over the last 7 days. You win a game by finishing first among friends who played it.</p><div class="stand">';
+  standing.forEach(function (p, i) {
+    var rk = i > 0 && week[standing[i - 1].id] === week[p.id] ? "" : "#" + (i + 1);
+    h += '<div class="stand-row' + (p.isMe ? " me" : "") + '"><span class="rk">' + rk + '</span>' +
+      '<span>' + (i === 0 && week[p.id] > 0 ? '<span class="crown">♛ </span>' : "") + '@' + esc(p.username) + (p.isMe ? " (you)" : "") +
+      ' <span class="n" style="color:var(--muted)">· ' + todayW[p.id] + ' today</span></span>' +
+      '<span class="wins">' + week[p.id] + '</span></div>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="panel"><h3>FRIENDS</h3>';
+  h += '<p>Share your code so friends can add you.</p>';
+  h += '<div class="row"><span class="code" id="my-code">' + esc(me.code) + '</span><button class="btn ghost small" type="button" id="copy-code">Copy</button></div>';
+  h += '<div class="row"><input type="text" id="add-code" placeholder="Friend code, e.g. TBT-5A3C1E" autocomplete="off" aria-label="Friend code"><button class="btn small" type="button" id="add-btn">Add</button></div>';
+  h += '<div class="msg" id="add-msg"></div>';
+  if (requestList.length) {
+    h += '<p>Friend requests</p><div class="friend-list">';
+    requestList.forEach(function (r) {
+      h += '<span class="fchip">@' + esc(r.username) + ' <button type="button" data-accept="' + esc(r.id) + '" style="color:var(--done)">ACCEPT</button></span>';
+    });
+    h += '</div>';
+  }
+  h += '<div class="friend-list">';
+  if (!friendList.length) h += '<p>' + (api.isDemo ? "No friends yet. Try the code TBT-C8D25F." : "No friends yet. Add one with their code.") + '</p>';
+  friendList.forEach(function (f) {
+    h += '<span class="fchip">@' + esc(f.username) + (f.pending ? ' <span style="color:var(--muted)">· waiting</span>' : '') + ' <button type="button" data-remove="' + esc(f.id) + '" aria-label="Remove ' + esc(f.username) + '">✕</button></span>';
+  });
+  h += '</div></div>';
+
+  h += '<div class="panel wide"><h3>TODAY\'S BOARD</h3><p>Friends\' scores for a game stay hidden until you log yours.</p>';
+  var rowsHtml = "", mineToday = myScores[today] || {};
+  scoredGames.forEach(function (g) {
+    var rows = rankGame(g, today, people);
+    if (!rows.length) return;
+    rowsHtml += '<div class="brow"><div class="bgame" style="--h:' + g.hue + '"><i></i>' + esc(g.name) + '</div>';
+    if (!mineToday[g.id]) {
+      var n = rows.length;
+      rowsHtml += '<div class="locked"><span class="dots" aria-hidden="true">▮▮▮</span>' + n + (n === 1 ? " friend" : " friends") + ' played' +
+        '<button class="mark log" style="position:static" type="button" data-log="' + g.id + '">+ LOG</button></div></div>';
+      return;
+    }
+    rowsHtml += '<div class="chips">';
+    rows.forEach(function (r) {
+      var cls = "pchip" + (r.rank === 1 && rows.length > 1 && !r.s.failed ? " first" : "") + (r.p.isMe ? " me" : "") + (r.s.failed ? " x" : "");
+      rowsHtml += '<span class="' + cls + '"><span class="n">' + r.rank + '</span>@' + esc(r.p.username) + ' <b>' + esc(fmtScore(g, r.s)) + '</b></span>';
+    });
+    rowsHtml += '</div></div>';
+  });
+  h += rowsHtml ? '<div class="board">' + rowsHtml + '</div>' : '<p>Nobody has logged a score today yet.</p>';
+  h += '</div></div>';
+
+  el.innerHTML = h;
+
+  document.getElementById("copy-code").onclick = function () {
+    var b = this;
+    var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500); };
+    try {
+      navigator.clipboard.writeText(me.code).then(done, function () { selectText("my-code"); });
+    } catch (e) { selectText("my-code"); }
+  };
+  var add = async function () {
+    var input = document.getElementById("add-code"), msg = document.getElementById("add-msg");
+    if (!input.value.trim()) { msg.className = "msg bad"; msg.textContent = "Type a friend code first."; return; }
+    var r;
+    try { r = await api.addFriend(input.value); }
+    catch (e) { console.error(e); r = { error: "Couldn't add that friend. Check your connection and try again." }; }
+    if (r.error) { msg.className = "msg bad"; msg.textContent = r.error; return; }
+    await refresh();
+    var m2 = document.getElementById("add-msg");
+    m2.className = "msg ok"; m2.textContent = r.ok;
+  };
+  document.getElementById("add-btn").onclick = add;
+  document.getElementById("add-code").onkeydown = function (e) { if (e.key === "Enter") add(); };
+  el.querySelectorAll("[data-remove]").forEach(function (b) {
+    b.onclick = async function () { await api.removeFriend(b.dataset.remove); refresh(); };
+  });
+  el.querySelectorAll("[data-log]").forEach(function (b) {
+    b.onclick = function () { openLog(b.dataset.log); };
+  });
+  el.querySelectorAll("[data-accept]").forEach(function (b) {
+    b.onclick = async function () { await api.acceptRequest(b.dataset.accept); refresh(); };
+  });
+}
+
+// The name button in the header: your code and sign out.
+function openAccount() {
+  openModal(
+    '<h3 id="dlg-title">@' + esc(me.username) + '</h3>' +
+    '<p>Your friend code</p>' +
+    '<div class="row"><span class="code" id="acct-code">' + esc(me.code) + '</span><button class="btn ghost small" type="button" id="acct-copy">Copy</button></div>' +
+    '<div class="dlg-actions"><button class="btn danger small" type="button" id="acct-out">Sign out</button><button class="btn" type="button" id="acct-close">Done</button></div>',
+    "acct-close");
+  document.getElementById("acct-copy").onclick = function () {
+    var b = this;
+    try {
+      navigator.clipboard.writeText(me.code).then(function () { b.textContent = "Copied"; }, function () { selectText("acct-code"); });
+    } catch (e) { selectText("acct-code"); }
+  };
+  document.getElementById("acct-close").onclick = closeModal;
+  document.getElementById("acct-out").onclick = async function () { closeModal(); await api.signOut(); showView("games"); refresh(); };
+}
+
+function selectText(id) {
+  var r = document.createRange();
+  r.selectNodeContents(document.getElementById(id));
+  var s = window.getSelection();
+  s.removeAllRanges(); s.addRange(r);
+}
+
+/* ---------------------------------------------------------------------------
+   Stats view: your own history
+   ------------------------------------------------------------------------- */
+function renderStats() {
+  var el = document.getElementById("view-stats");
+  if (!me) { el.innerHTML = signInPrompt("TRACK YOUR STATS"); return; }
+
+  var total = 0, perGame = {};
+  Object.keys(myScores).forEach(function (day) {
+    Object.keys(myScores[day]).forEach(function (gid) {
+      if (!gameIndex[gid] || !gameIndex[gid].score) return;
+      total++;
+      (perGame[gid] = perGame[gid] || []).push(myScores[day][gid]);
+    });
+  });
+  // streak: consecutive days with at least one logged score, counting back from today
+  // (or from yesterday, so the streak doesn't look broken before today's first log)
+  var streak = 0, off = (myScores[todayKey()] && Object.keys(myScores[todayKey()]).length) ? 0 : -1;
+  while (true) {
+    var d = myScores[dayKey(off)];
+    if (!d || !Object.keys(d).length) break;
+    streak++; off--;
+  }
+  var people = players(), weekWins = 0;
+  WEEK.forEach(function (d) { weekWins += winsOn(d, people)[me.id] || 0; });
+
+  var h = '<div class="panels"><div class="panel wide"><h3>@' + esc(me.username) + '</h3><div class="tiles">' +
+    '<div class="tile"><span class="v">' + total + '</span><span class="k">scores logged</span></div>' +
+    '<div class="tile"><span class="v">' + streak + '</span><span class="k">day streak</span></div>' +
+    '<div class="tile"><span class="v">' + weekWins + '</span><span class="k">wins this week</span></div>' +
+    '<div class="tile"><span class="v">' + Object.keys(perGame).length + '/' + scoredGames.length + '</span><span class="k">games played</span></div>' +
+    '</div></div>';
+
+  h += '<div class="panel wide"><h3>BY GAME</h3>';
+  var ids = scoredGames.filter(function (g) { return perGame[g.id]; });
+  if (!ids.length) {
+    h += '<p>No scores yet. Tap + LOG on a cartridge after you play.</p>';
+  } else {
+    h += '<div class="tbl-wrap"><table><thead><tr><th>Game</th><th class="num">Played</th><th class="num">Best</th><th class="num">Average</th><th class="num">Solved</th></tr></thead><tbody>';
+    ids.forEach(function (g) {
+      var list = perGame[g.id];
+      var ok = list.filter(function (s) { return !s.failed; });
+      var best = list.slice().sort(function (a, b) { return cmpScore(g, a, b); })[0];
+      var avg = ok.length ? ok.reduce(function (t, s) { return t + Number(s.value); }, 0) / ok.length : null;
+      var avgTxt = avg === null ? "–" : (g.score.type === "guesses" ? avg.toFixed(1) : Math.round(avg).toLocaleString());
+      h += '<tr><td>' + esc(g.name) + '</td><td class="num">' + list.length + '</td><td class="num">' + esc(fmtScore(g, best)) + '</td><td class="num">' + avgTxt + '</td>' +
+        '<td class="num">' + (g.score.type === "guesses" ? Math.round(100 * ok.length / list.length) + "%" : "–") + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  h += '</div></div>';
+  el.innerHTML = h;
+}
+
+function renderAll() {
+  renderAcct();
+  paint();
+  renderFriends();
+  renderStats();
+  document.querySelectorAll("[data-signin]").forEach(function (b) { b.onclick = openSignIn; });
+}
+
+/* ---------------------------------------------------------------------------
+   Dialogs: sign in, log a score
+   ------------------------------------------------------------------------- */
+var modal = document.getElementById("modal"), dialog = document.getElementById("dialog"), lastFocus = null;
+function openModal(html, focusId) {
+  lastFocus = document.activeElement;
+  dialog.innerHTML = html;
+  modal.hidden = false;
+  var f = focusId && document.getElementById(focusId);
+  if (f) f.focus();
+}
+function closeModal() {
+  modal.hidden = true;
+  dialog.innerHTML = "";
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) closeModal(); });
+
+// Sign-in pop-up. Accounts come only from Google; new players then pick a username.
+function openSignIn() {
+  openModal(
+    '<h3 id="dlg-title">SIGN IN</h3>' +
+    '<p>Sign in with your Google account to save your scores and compare them with friends. New here? The same button creates your account.</p>' +
+    '<button class="btn google" type="button" id="si-google">Continue with Google</button>' +
+    '<div class="msg" id="si-msg"></div>' +
+    '<p style="font-size:14px">The games work the same without an account.</p>' +
+    '<div class="dlg-actions"><button class="btn ghost small" type="button" id="si-cancel">Cancel</button></div>',
+    "si-google");
+  var msg = document.getElementById("si-msg");
+  document.getElementById("si-google").onclick = async function () {
+    if (api.isDemo) api.data.signingIn = true;
+    var r = await api.signInWithGoogle();
+    if (r.redirect || r.cancelled) return;
+    if (r.error) { msg.className = "msg bad"; msg.textContent = r.error; return; }
+    closeModal();
+    await refresh();
+  };
+  document.getElementById("si-cancel").onclick = closeModal;
+}
+
+// First sign-in only: choose the name friends will see.
+function pickUsername() {
+  openModal(
+    '<h3 id="dlg-title">PICK A USERNAME</h3>' +
+    '<p>This is the name your friends see. 3 to 20 letters, numbers or underscores.</p>' +
+    (api.isDemo ? '<p style="font-size:14px">In the demo, this skips Google and goes straight to this step.</p>' : '') +
+    '<input type="text" id="un" placeholder="e.g. omer" autocomplete="off" maxlength="20" aria-label="Username">' +
+    '<div class="msg" id="un-msg"></div>' +
+    '<div class="dlg-actions"><button class="btn ghost small" type="button" id="un-cancel">Cancel</button><button class="btn" type="button" id="un-go">Start playing</button></div>',
+    "un");
+  var go = async function () {
+    var v = document.getElementById("un").value.trim().toLowerCase(), m = document.getElementById("un-msg");
+    if (!/^[a-z0-9_]{3,20}$/.test(v)) { m.className = "msg bad"; m.textContent = "Use 3 to 20 letters, numbers or underscores."; return; }
+    var r = await api.claimUsername(v);
+    if (r.error) { m.className = "msg bad"; m.textContent = r.error; return; }
+    closeModal();
+    await refresh();
+  };
+  document.getElementById("un-go").onclick = go;
+  document.getElementById("un").onkeydown = function (e) { if (e.key === "Enter") go(); };
+  // cancelling before picking a name signs you back out, so you're never half signed in
+  document.getElementById("un-cancel").onclick = async function () {
+    closeModal();
+    if (api.isDemo) { api.data.signingIn = false; api.persist(); } else { await api.signOut(); }
+    refresh();
+  };
+}
+
+// Log pop-up for one game. Guess games: tap the number of guesses (or X) and it saves.
+// Points games: type the number.
+function openLog(gameId) {
+  var g = gameIndex[gameId];
+  if (!g || !g.score) return;
+  var sc = g.score, existing = (myScores[todayKey()] || {})[g.id];
+  var tapMax = sc.type === "guesses" ? (sc.max || 8) : 0;
+
+  var body = "";
+  if (tapMax) {
+    body += '<p>How many guesses?' + (sc.max ? "" : " Tap X if you didn't get it.") + '</p><div class="taps" role="group" aria-label="Guesses">';
+    for (var i = 1; i <= tapMax; i++) {
+      body += '<button type="button" class="tapn' + (existing && !existing.failed && existing.value === i ? " cur" : "") + '" data-v="' + i + '">' + i + '</button>';
+    }
+    if (!sc.max) body += '<button type="button" class="tapn more" id="lg-more" aria-label="More than ' + tapMax + '">' + (tapMax + 1) + '+</button>';
+    body += '<button type="button" class="tapn x' + (existing && existing.failed ? " cur" : "") + '" data-v="X" aria-label="Didn\'t solve it">X</button></div>';
+    body += '<div class="row" id="lg-more-row" hidden><input type="number" id="lg-value" min="1" inputmode="numeric" aria-label="Number of guesses"><button class="btn" type="button" id="lg-save">Save</button></div>';
+  } else {
+    body += '<p>' + (sc.low ? "Your points (lower wins)" : "Your points") + (sc.max ? " out of " + sc.max.toLocaleString() : "") + '</p>';
+    body += '<div class="row"><input type="number" id="lg-value" min="0" inputmode="numeric" aria-label="Points" value="' + (existing && !existing.failed ? existing.value : "") + '"><button class="btn" type="button" id="lg-save">Save</button></div>';
+  }
+  body += '<div class="msg" id="lg-msg"></div>';
+
+  openModal(
+    '<h3 id="dlg-title">LOG · ' + esc(g.name.toUpperCase()) + '</h3>' + body +
+    '<div class="dlg-actions">' + (existing ? '<button class="btn ghost small" type="button" id="lg-del">Delete score</button>' : '') +
+    '<button class="btn ghost small" type="button" id="lg-cancel">Cancel</button></div>',
+    tapMax ? null : "lg-value");
+  var first = dialog.querySelector(".tapn");
+  if (first) first.focus();
+
+  var msg = document.getElementById("lg-msg");
+  function bad(t) { msg.className = "msg bad"; msg.textContent = t; }
+  async function commit(value, failed) {
+    if (!failed) {
+      if (!isFinite(value) || value < 0 || (sc.type === "guesses" && value < 1)) return bad("Enter a number" + (sc.type === "guesses" ? " of guesses, 1 or more." : ", 0 or more."));
+      if (sc.max && value > sc.max) return bad(g.name + " goes up to " + sc.max.toLocaleString() + ".");
+    }
+    try { await api.saveScore(g.id, todayKey(), { value: value, failed: failed }); }
+    catch (e) { console.error(e); return bad("Couldn't save your score. Check your connection and try again."); }
+    if (g.isDaily && !state.done[g.id]) { state.done[g.id] = true; save(); }
+    closeModal();
+    await refresh();
+    stamp(g.id);
+  }
+
+  dialog.querySelectorAll(".tapn[data-v]").forEach(function (b) {
+    b.onclick = function () { b.dataset.v === "X" ? commit(null, true) : commit(Number(b.dataset.v), false); };
+  });
+  var more = document.getElementById("lg-more");
+  if (more) more.onclick = function () {
+    document.getElementById("lg-more-row").hidden = false;
+    document.getElementById("lg-value").focus();
+  };
+  var val = document.getElementById("lg-value");
+  var saveBtn = document.getElementById("lg-save");
+  if (saveBtn) {
+    var go = function () { if (val.value === "") return bad("Type your score first."); commit(Number(val.value), false); };
+    saveBtn.onclick = go;
+    val.onkeydown = function (e) { if (e.key === "Enter") go(); };
+  }
+
+  document.getElementById("lg-cancel").onclick = closeModal;
+  if (existing) document.getElementById("lg-del").onclick = async function () {
+    await api.deleteScore(g.id, todayKey()); closeModal(); refresh();
+  };
+}
+
+// Little pixel "stamp" on the cartridge's score tag after saving.
+function stamp(gameId) {
+  var mk = document.querySelector('.cart[data-id="' + gameId + '"] .mark');
+  if (!mk) return;
+  mk.classList.remove("stamp");
+  void mk.offsetWidth;
+  mk.classList.add("stamp");
+  setTimeout(function () { mk.classList.remove("stamp"); }, 700);
+}
+
+document.getElementById("demo-reset").onclick = async function () {
+  api.reset();
+  try { localStorage.removeItem(KEY); } catch (e) {}
+  state = load();
+  showView("games");
+  await refresh();
+};
 
 document.addEventListener("visibilitychange", function () { if (!document.hidden) rollover(); });
 setInterval(rollover, 60000);
@@ -630,6 +1628,22 @@ function playSplash() {
 drawStars();
 build();
 paint();
+(function () {
+  var v = "games";
+  try { v = localStorage.getItem("tbt-view") || "games"; } catch (e) {}
+  showView(["games", "friends", "stats"].indexOf(v) !== -1 ? v : "games");
+})();
+(async function boot() {
+  var live = !/[?&]demo\b/.test(location.search) &&
+    /^(www\.)?thatboytough\.com$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+  if (live) {
+    try { api = await connectFirebase(); }
+    catch (e) { console.warn("Couldn't reach Firebase, running the demo instead.", e); api = demo; }
+  }
+  document.getElementById("demo").hidden = !api.isDemo;
+  booted = true;
+  try { await refresh(); } catch (e) { console.error(e); renderAll(); }
+})();
 
 (function () {
   var seen = "";
