@@ -26,6 +26,8 @@
   --done: #62e08a;
   --lab-ink: #120d2b;
   --pink: #e8607f;
+  --danger: #e5484d;
+  --danger-deep: #8f1d22;
   --splash-bg: #05040f;
   --scrim: rgba(5, 4, 15, 0.82);
   --font-pixel: "Press Start 2P", "Courier New", ui-monospace, monospace;
@@ -123,6 +125,8 @@ h1 {
   text-transform: uppercase;
 }
 .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--amber-deep); }
+.btn.danger { background: var(--danger); color: #fff; box-shadow: 0 4px 0 var(--danger-deep); }
+.btn.danger:active { box-shadow: 0 2px 0 var(--danger-deep); }
 .btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--panel-edge); box-shadow: none; padding: 8px 10px; }
 .btn.ghost:hover { border-color: var(--ledge-hi); }
 .btn.small { font-size: 8px; padding: 7px 8px; }
@@ -416,10 +420,6 @@ td.num, th.num { text-align: right; }
 .tapn.x { color: var(--pink); }
 .tapn.more { font-size: 11px; }
 .tapn.cur { background: var(--amber); color: var(--amber-ink); box-shadow: inset 0 -4px 0 var(--amber-deep), 0 4px 0 var(--shadow); }
-.linkish { justify-self: start; background: none; border: 0; padding: 4px 0; color: var(--muted); font: 15px var(--font-body); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.linkish:hover { color: var(--ink); }
-#lg-paste-box { display: grid; gap: 8px; }
-#lg-read { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .dialog input[type="number"] { flex: 1; }
 .mark.stamp { animation: stamp 0.6s steps(4, end); }
 @keyframes stamp {
@@ -626,7 +626,7 @@ function esc(s) {
 }
 
 /* ---------------------------------------------------------------------------
-   Scores: formatting, comparing and reading pasted share text
+   Scores: formatting and comparing
    ------------------------------------------------------------------------- */
 function fmtScore(game, s) {
   var sc = game.score, max = sc.max;
@@ -641,38 +641,6 @@ function cmpScore(game, a, b) {
   if (b.failed) return -1;
   var lowerWins = game.score.type === "guesses" || game.score.low;
   return lowerWins ? a.value - b.value : b.value - a.value;
-}
-
-function norm(s) { return String(s).toLowerCase().replace(/[^a-z0-9]/g, ""); }
-var ALIASES = [];
-scoredGames.forEach(function (g) {
-  [g.name, g.id, host(g.url).split(".")[0]].forEach(function (a) {
-    a = norm(a);
-    if (a.length >= 4 && !ALIASES.some(function (x) { return x.a === a; })) ALIASES.push({ a: a, g: g });
-  });
-});
-ALIASES.sort(function (x, y) { return y.a.length - x.a.length; });
-
-function toNum(s) { return Number(String(s).replace(/,/g, "")); }
-
-// Reads a game's share text, e.g. "#Worldle #1024 3/6 (100%)" or "Final score: 812".
-function parseShare(text) {
-  var out = { game: null, value: null, failed: false };
-  if (!text || !text.trim()) return out;
-  var n = norm(text);
-  for (var i = 0; i < ALIASES.length; i++) {
-    if (n.indexOf(ALIASES[i].a) !== -1) { out.game = ALIASES[i].g; break; }
-  }
-  var m = text.match(/(^|[^\d\/])(X|\d[\d,]*)\s*\/\s*(\d[\d,]*)(?![\d\/])/i);
-  if (m) {
-    if (m[2].toUpperCase() === "X") out.failed = true; else out.value = toNum(m[2]);
-    return out;
-  }
-  m = text.match(/(\d[\d,]*)\s*(guesses|guess|tries|attempts)/i) || text.match(/🔥\s*(\d+)/); // 🔥 4 (Globle)
-  if (m) { out.value = toNum(m[1]); return out; }
-  m = text.match(/(score|points|total)\D{0,12}(\d[\d,]*)/i);
-  if (m) { out.value = toNum(m[2]); return out; }
-  return out;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1326,7 +1294,7 @@ function openAccount() {
     '<h3 id="dlg-title">@' + esc(me.username) + '</h3>' +
     '<p>Your friend code</p>' +
     '<div class="row"><span class="code" id="acct-code">' + esc(me.code) + '</span><button class="btn ghost small" type="button" id="acct-copy">Copy</button></div>' +
-    '<div class="dlg-actions"><button class="btn ghost small" type="button" id="acct-out">Sign out</button><button class="btn" type="button" id="acct-close">Done</button></div>',
+    '<div class="dlg-actions"><button class="btn danger small" type="button" id="acct-out">Sign out</button><button class="btn" type="button" id="acct-close">Done</button></div>',
     "acct-close");
   document.getElementById("acct-copy").onclick = function () {
     var b = this;
@@ -1477,7 +1445,7 @@ function pickUsername() {
 }
 
 // Log pop-up for one game. Guess games: tap the number of guesses (or X) and it saves.
-// Points games: type the number. Pasting the share text is a fallback underneath.
+// Points games: type the number.
 function openLog(gameId) {
   var g = gameIndex[gameId];
   if (!g || !g.score) return;
@@ -1498,8 +1466,6 @@ function openLog(gameId) {
     body += '<div class="row"><input type="number" id="lg-value" min="0" inputmode="numeric" aria-label="Points" value="' + (existing && !existing.failed ? existing.value : "") + '"><button class="btn" type="button" id="lg-save">Save</button></div>';
   }
   body += '<div class="msg" id="lg-msg"></div>';
-  body += '<button type="button" class="linkish" id="lg-paste-toggle" aria-expanded="false">or paste share text ▸</button>';
-  body += '<div id="lg-paste-box" hidden><textarea id="lg-paste" placeholder="Paste the text from ' + esc(g.name) + '\'s Share button" aria-label="Share text"></textarea><div class="msg" id="lg-read"></div></div>';
 
   openModal(
     '<h3 id="dlg-title">LOG · ' + esc(g.name.toUpperCase()) + '</h3>' + body +
@@ -1516,8 +1482,7 @@ function openLog(gameId) {
       if (!isFinite(value) || value < 0 || (sc.type === "guesses" && value < 1)) return bad("Enter a number" + (sc.type === "guesses" ? " of guesses, 1 or more." : ", 0 or more."));
       if (sc.max && value > sc.max) return bad(g.name + " goes up to " + sc.max.toLocaleString() + ".");
     }
-    var raw = document.getElementById("lg-paste").value.slice(0, 2000);
-    try { await api.saveScore(g.id, todayKey(), { value: value, failed: failed, raw: raw }); }
+    try { await api.saveScore(g.id, todayKey(), { value: value, failed: failed }); }
     catch (e) { console.error(e); return bad("Couldn't save your score. Check your connection and try again."); }
     if (g.isDaily && !state.done[g.id]) { state.done[g.id] = true; save(); }
     closeModal();
@@ -1540,27 +1505,6 @@ function openLog(gameId) {
     saveBtn.onclick = go;
     val.onkeydown = function (e) { if (e.key === "Enter") go(); };
   }
-
-  var toggle = document.getElementById("lg-paste-toggle"), box = document.getElementById("lg-paste-box"), paste = document.getElementById("lg-paste");
-  toggle.onclick = function () {
-    box.hidden = !box.hidden;
-    toggle.setAttribute("aria-expanded", String(!box.hidden));
-    toggle.textContent = box.hidden ? "or paste share text ▸" : "hide share text ▾";
-    if (!box.hidden) paste.focus();
-  };
-  paste.addEventListener("input", function () {
-    var r = parseShare(paste.value), read = document.getElementById("lg-read");
-    read.innerHTML = "";
-    if (!paste.value.trim()) return;
-    if (r.game && r.game.id !== g.id) { read.className = "msg bad"; read.textContent = "This looks like " + r.game.name + ", not " + g.name + ". Log it from the " + r.game.name + " card."; return; }
-    if (r.value === null && !r.failed) { read.className = "msg bad"; read.textContent = "Couldn't find a score in that text. Tap or type it above."; return; }
-    read.className = "msg ok";
-    read.textContent = "Found your score:";
-    var ok = document.createElement("button");
-    ok.type = "button"; ok.className = "btn small"; ok.textContent = "Save " + fmtScore(g, r);
-    ok.onclick = function () { commit(r.value, r.failed); };
-    read.appendChild(ok);
-  });
 
   document.getElementById("lg-cancel").onclick = closeModal;
   if (existing) document.getElementById("lg-del").onclick = async function () {
