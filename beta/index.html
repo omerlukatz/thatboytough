@@ -306,7 +306,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   padding: 10px 12px;
   user-select: all;
 }
-input[type="text"], input[type="number"], input[type="email"], input[type="password"], select, textarea {
+input[type="text"], input[type="number"], select, textarea {
   font: 16px var(--font-body);
   color: var(--ink);
   background: var(--shadow);
@@ -390,14 +390,6 @@ td.num, th.num { text-align: right; }
 .dialog .row > input[type="text"] { flex: 1; }
 .sep { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
 .sep::before, .sep::after { content: ""; flex: 1; height: 2px; background: var(--panel-edge); }
-.authform { display: grid; gap: 8px; }
-.authform label { font-size: 15px; color: var(--ink); margin-top: 4px; }
-.authform .hint { color: var(--muted); font-size: 13px; }
-.authform input { width: 100%; }
-.authform .linkish { margin-top: -2px; }
-.btn.wide { width: 100%; padding: 13px; margin-top: 6px; }
-.switch { text-align: center; }
-.switch .linkish { display: inline; padding: 0; }
 .btn.google { background: var(--ink); color: var(--lab-ink); box-shadow: 0 4px 0 var(--muted); width: 100%; padding: 13px; }
 .parsed {
   display: grid; gap: 10px;
@@ -733,9 +725,6 @@ var demo = {
 
   session: async function () { return this.data.user || (this.data.signingIn ? { needsUsername: true } : null); },
   signInWithGoogle: async function () { return {}; },
-  logIn: async function () { this.data.signingIn = true; return {}; },
-  createAccount: async function () { return {}; },
-  resetPassword: async function () { return { sent: true }; },
   claimUsername: async function (username) {
     username = username.toLowerCase();
     if (SAMPLE[username]) return { error: "That username is taken. Try another." };
@@ -825,19 +814,6 @@ var FIREBASE_CONFIG = {
 };
 var FIREBASE_SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
 
-// Plain-language versions of Firebase's sign-in errors.
-function authMessage(e) {
-  var c = e && e.code;
-  if (c === "auth/invalid-credential" || c === "auth/wrong-password" || c === "auth/user-not-found" || c === "auth/invalid-login-credentials")
-    return "That email and password don't match. Try again, or reset your password.";
-  if (c === "auth/email-already-in-use") return "There's already an account with that email. Log in instead.";
-  if (c === "auth/weak-password") return "Use a password with at least 6 characters.";
-  if (c === "auth/invalid-email") return "That email address doesn't look right.";
-  if (c === "auth/too-many-requests") return "Too many tries. Wait a few minutes, or reset your password.";
-  if (c === "auth/network-request-failed") return "Couldn't reach the server. Check your connection.";
-  return "Something went wrong (" + c + "). Try again.";
-}
-
 async function connectFirebase() {
   var A = await import(FIREBASE_SDK + "firebase-app.js");
   var U = await import(FIREBASE_SDK + "firebase-auth.js");
@@ -879,20 +855,8 @@ async function connectFirebase() {
           await U.signInWithRedirect(auth, provider);
           return { redirect: true };
         }
-        return { error: "Google sign-in didn't work (" + e.code + "). Try again, or log in with email." };
+        return { error: "Google sign-in didn't work (" + e.code + "). Try again." };
       }
-    },
-    logIn: async function (email, password) {
-      try { await U.signInWithEmailAndPassword(auth, email, password); return {}; }
-      catch (e) { return { error: authMessage(e) }; }
-    },
-    createAccount: async function (email, password) {
-      try { await U.createUserWithEmailAndPassword(auth, email, password); return {}; }
-      catch (e) { return { error: authMessage(e) }; }
-    },
-    resetPassword: async function (email) {
-      try { await U.sendPasswordResetEmail(auth, email); return { sent: true }; }
-      catch (e) { return { error: authMessage(e) }; }
     },
     claimUsername: async function (name) {
       if ((await F.getDoc(ref("usernames", name))).exists()) return { error: "That username is taken. Try another." };
@@ -1462,85 +1426,25 @@ function closeModal() {
 modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) closeModal(); });
 
-// Sign-in pop-up. mode is "login" (default) or "create".
-function openSignIn(mode) {
-  var create = mode === "create";
+// Sign-in pop-up. Accounts come only from Google; new players then pick a username.
+function openSignIn() {
   openModal(
-    '<h3 id="dlg-title">' + (create ? "CREATE ACCOUNT" : "LOG IN") + '</h3>' +
-    '<p>' + (create ? "Save your scores and compare them with friends." : "Welcome back. The games work the same without an account.") + '</p>' +
-    '<form class="authform" id="auth-form" novalidate>' +
-      '<label for="au-email">Email</label>' +
-      '<input type="email" id="au-email" autocomplete="email" placeholder="you@example.com" required>' +
-      '<label for="au-pass">Password' + (create ? ' <span class="hint">at least 6 characters</span>' : '') + '</label>' +
-      '<input type="password" id="au-pass" autocomplete="' + (create ? "new-password" : "current-password") + '" required>' +
-      (create
-        ? '<label for="au-name">Username <span class="hint">what friends see</span></label>' +
-          '<input type="text" id="au-name" autocomplete="username" maxlength="20" placeholder="e.g. omer" required>'
-        : '<button type="button" class="linkish" id="au-forgot">Forgot password?</button>') +
-      '<div class="msg" id="au-msg"></div>' +
-      '<button class="btn wide" type="submit" id="au-go">' + (create ? "Create account" : "Log in") + '</button>' +
-    '</form>' +
-    '<div class="sep">or</div>' +
+    '<h3 id="dlg-title">SIGN IN</h3>' +
+    '<p>Sign in with your Google account to save your scores and compare them with friends. New here? The same button creates your account.</p>' +
     '<button class="btn google" type="button" id="si-google">Continue with Google</button>' +
-    '<p class="switch">' + (create
-      ? 'Already have an account? <button type="button" class="linkish" id="au-switch">Log in</button>'
-      : 'New here? <button type="button" class="linkish" id="au-switch">Create an account</button>') + '</p>' +
+    '<div class="msg" id="si-msg"></div>' +
+    '<p style="font-size:14px">The games work the same without an account.</p>' +
     '<div class="dlg-actions"><button class="btn ghost small" type="button" id="si-cancel">Cancel</button></div>',
-    "au-email");
-
-  var msg = document.getElementById("au-msg"), go = document.getElementById("au-go");
-  function bad(t) { msg.className = "msg bad"; msg.textContent = t; }
-  function ok(t) { msg.className = "msg ok"; msg.textContent = t; }
-  function busy(on) { go.disabled = on; go.textContent = on ? "One moment…" : (create ? "Create account" : "Log in"); }
-  var emailOk = function (v) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v); };
-
-  document.getElementById("auth-form").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    var email = document.getElementById("au-email").value.trim();
-    var pass = document.getElementById("au-pass").value;
-    if (!emailOk(email)) return bad("Enter a full email address, like you@example.com.");
-    if (!pass) return bad("Enter your password.");
-    if (create) {
-      var name = document.getElementById("au-name").value.trim().toLowerCase();
-      if (pass.length < 6) return bad("Use a password with at least 6 characters.");
-      if (!/^[a-z0-9_]{3,20}$/.test(name)) return bad("Usernames are 3 to 20 letters, numbers or underscores.");
-      busy(true);
-      var r = await api.createAccount(email, pass);
-      if (r.error) { busy(false); return bad(r.error); }
-      var u = await api.claimUsername(name);
-      busy(false);
-      // the account exists either way; if the name was taken, the next step asks for another
-      closeModal();
-      await refresh();
-      if (u.error) { pickUsername(); var m = document.getElementById("un-msg"); m.className = "msg bad"; m.textContent = u.error; }
-      return;
-    }
-    busy(true);
-    var r2 = await api.logIn(email, pass);
-    busy(false);
-    if (r2.error) return bad(r2.error);
-    closeModal();
-    await refresh();
-  });
-
-  var forgot = document.getElementById("au-forgot");
-  if (forgot) forgot.onclick = async function () {
-    var email = document.getElementById("au-email").value.trim();
-    if (!emailOk(email)) return bad("Type your email above first, then tap Forgot password.");
-    var r = await api.resetPassword(email);
-    if (r.error) return bad(r.error);
-    ok("If there's an account for " + email + ", a password reset email is on its way. Check spam too.");
-  };
-
+    "si-google");
+  var msg = document.getElementById("si-msg");
   document.getElementById("si-google").onclick = async function () {
     if (api.isDemo) api.data.signingIn = true;
     var r = await api.signInWithGoogle();
     if (r.redirect || r.cancelled) return;
-    if (r.error) return bad(r.error);
+    if (r.error) { msg.className = "msg bad"; msg.textContent = r.error; return; }
     closeModal();
     await refresh();
   };
-  document.getElementById("au-switch").onclick = function () { openSignIn(create ? "login" : "create"); };
   document.getElementById("si-cancel").onclick = closeModal;
 }
 
@@ -1549,7 +1453,7 @@ function pickUsername() {
   openModal(
     '<h3 id="dlg-title">PICK A USERNAME</h3>' +
     '<p>This is the name your friends see. 3 to 20 letters, numbers or underscores.</p>' +
-    (api.isDemo ? '<p style="font-size:14px">In the demo, any email and password work.</p>' : '') +
+    (api.isDemo ? '<p style="font-size:14px">In the demo, this skips Google and goes straight to this step.</p>' : '') +
     '<input type="text" id="un" placeholder="e.g. omer" autocomplete="off" maxlength="20" aria-label="Username">' +
     '<div class="msg" id="un-msg"></div>' +
     '<div class="dlg-actions"><button class="btn ghost small" type="button" id="un-cancel">Cancel</button><button class="btn" type="button" id="un-go">Start playing</button></div>',
